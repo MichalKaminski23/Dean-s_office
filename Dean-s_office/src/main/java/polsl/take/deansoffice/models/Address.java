@@ -5,7 +5,6 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class Address {
-
 	@Column(nullable = false, length = 32)
 	private String Country;
 

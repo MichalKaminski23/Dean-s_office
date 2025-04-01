@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeacherSubject {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int TeacherSubjectId;

@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @PrimaryKeyJoinColumn(name = "UserId")
 public class Student extends User {
-
 	@Column(nullable = false, length = 10, unique = true)
 	private String Album;
 

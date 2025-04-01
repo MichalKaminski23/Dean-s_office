@@ -23,7 +23,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Subject {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int SubjectId;

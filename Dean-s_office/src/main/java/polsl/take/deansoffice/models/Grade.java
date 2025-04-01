@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Grade {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int GradeId;

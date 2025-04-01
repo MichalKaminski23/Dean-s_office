@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @PrimaryKeyJoinColumn(name = "UserId")
 public class Teacher extends User {
-
 	@Column(nullable = false, length = 8)
 	private String Title;
 
@@ -32,7 +31,4 @@ public class Teacher extends User {
 
 	@OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TeacherSubject> teachersSubjects = new ArrayList<TeacherSubject>();
-
-	// @OneToOne(mappedBy = "teacher", cascade = CascadeType.ALL)
-	// private Subject subject;
 }
