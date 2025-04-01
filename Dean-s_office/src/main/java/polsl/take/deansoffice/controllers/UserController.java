@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-public class StudentController {
+public class UserController {
 
-	@GetMapping("/students")
+	@GetMapping("/users")
 	public String hello() {
-		return "Tu się wypiszą studenci";
+		return "Tu się wypiszą userzy";
 	}
 }

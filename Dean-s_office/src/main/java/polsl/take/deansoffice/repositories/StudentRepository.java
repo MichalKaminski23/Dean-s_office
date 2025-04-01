@@ -1,5 +1,9 @@
 package polsl.take.deansoffice.repositories;
 
-//public interface StudentRepository extends JpaRepository<Student, Long> {
-//
-//}
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import polsl.take.deansoffice.models.Student;
+
+public interface StudentRepository extends JpaRepository<Student, Integer> {
+
+}

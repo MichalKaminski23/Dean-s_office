@@ -14,28 +14,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Students")
+@Table(name = "Teachers")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @PrimaryKeyJoinColumn(name = "UserId")
-public class Student extends User {
-
-	@Column(nullable = false, length = 10, unique = true)
-	private String Album;
-
-	@Column(nullable = false, length = 32)
-	private String Field;
-
-	@Column(nullable = false, length = 32)
-	private String Specialization;
-
-	@Column(nullable = false, length = 2)
-	private int Semester;
+public class Teacher extends User {
 
 	@Column(nullable = false, length = 8)
-	private String Degree;
+	private String Title;
 
-	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Grade> grades = new ArrayList<Grade>();
+	@Column(nullable = false, length = 32)
+	private String Department;
+
+	@Column(nullable = false, length = 8)
+	private String Room;
+
+	@OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TeacherSubject> teachersSubjects = new ArrayList<TeacherSubject>();
+
+	// @OneToOne(mappedBy = "teacher", cascade = CascadeType.ALL)
+	// private Subject subject;
 }
