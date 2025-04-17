@@ -3,7 +3,6 @@ package polsl.take.deansoffice.models;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,30 +23,41 @@ import lombok.NoArgsConstructor;
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int UserId;
+	private int userId;
 
 	@Column(nullable = false, length = 64)
-	private String Name;
+	private String name;
 
 	@Column(nullable = false, length = 64)
-	private String Surname;
+	private String surname;
 
 	@Column(nullable = false, length = 128)
-	private String Email;
+	private String email;
 
 	@Column(nullable = false, length = 16)
-	private String Phone;
+	private String phone;
 
-	@Embedded
-	@Column(nullable = false)
-	private Address Address;
+	@Column(nullable = false, length = 32)
+	private String country;
+
+	@Column(nullable = false, length = 16)
+	private String city;
+
+	@Column(nullable = false, length = 16)
+	private String postalCode;
+
+	@Column(nullable = false, length = 32)
+	private String street;
+
+	@Column(nullable = false, length = 32)
+	private String apartNumber;
 
 	@Column(nullable = false)
-	private LocalDate StartDate;
+	private LocalDate startDate;
 
 	@Column(nullable = true)
-	private LocalDate EndDate;
+	private LocalDate endDate;
 
 	@Column(nullable = false)
-	private boolean IsActive;
+	private boolean active;
 }

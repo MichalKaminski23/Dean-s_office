@@ -11,6 +11,7 @@ import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -19,21 +20,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @PrimaryKeyJoinColumn(name = "UserId")
+@EqualsAndHashCode(callSuper = true)
 public class Student extends User {
 	@Column(nullable = false, length = 10, unique = true)
-	private String Album;
+	private String album;
 
 	@Column(nullable = false, length = 32)
-	private String Field;
+	private String field;
 
 	@Column(nullable = false, length = 32)
-	private String Specialization;
+	private String specialization;
 
 	@Column(nullable = false, length = 2)
-	private int Semester;
+	private int semester;
 
 	@Column(nullable = false, length = 8)
-	private String Degree;
+	private String degree;
 
 	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Grade> grades = new ArrayList<Grade>();

@@ -25,10 +25,10 @@ import lombok.NoArgsConstructor;
 public class Subject {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int SubjectId;
+	private int subjectId;
 
 	@Column(nullable = false, length = 32)
-	private String Name;
+	private String name;
 
 	@OneToOne
 	@JoinColumn(name = "MainTeacherId", nullable = false)

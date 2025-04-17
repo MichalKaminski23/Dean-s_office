@@ -5,6 +5,13 @@ VALUES
 (3, 'ddd@gmail.com', NULL, 1, 'Jarek', '696969696', '1997-12-12', 'Poducha', '19', 'Sosnowiec', 'Polska', '32-333', 'Wagowa'),
 (4, 'ggg@gmail.com', NULL, 1, 'Oleg', '666666666', '2013-01-01', 'Antena', '202', 'Dupa', 'Niemcy', '77-878', 'Dunikowskiego');
 
+INSERT INTO USERS (USER_ID, ACTIVE, APART_NUMBER, CITY, COUNTRY, EMAIL, END_DATE, NAME, PHONE, POSTAL_CODE, START_DATE, STREET, SURNAME)
+VALUES
+(1, 1, '16A', 'Gliwice', 'Polska', 'test@gmail.com', NULL, 'Michal', '123321123', '42-575', '2022-12-12', 'Akademicka', 'Kozak'),
+(2, 1, '17', 'Katowice', 'Polska', 'koks@gmail.com', NULL, 'Wojtek', '323232321', '42-420', '2020-10-10', 'Mariacka', 'Mocarz'),
+(3, 1, '19', 'Sosnowiec', 'Polska', 'ddd@gmail.com', NULL, 'Jarek', '696969696', '32-333', '1997-12-12', 'Wagowa', 'Poducha'),
+(4, 1, '202', 'Dupa', 'Niemcy', 'ggg@gmail.com', NULL, 'Oleg', '666666666', '77-878', '2013-01-01', 'Dunikowskiego', 'Antena');
+
 INSERT INTO TEACHERS (DEPARTMENT, ROOM, TITLE, USER_ID) 
 VALUES
 ('Kat. Algorytmiki', '320', 'dr hab', 1),

@@ -3,9 +3,9 @@ package polsl.take.deansoffice.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import polsl.take.deansoffice.models.User;
+import polsl.take.deansoffice.models.Subject;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface SubjectRepository extends JpaRepository<Subject, Integer> {
 
 }

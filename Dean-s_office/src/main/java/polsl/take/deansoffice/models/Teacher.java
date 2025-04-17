@@ -11,6 +11,7 @@ import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -19,15 +20,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @PrimaryKeyJoinColumn(name = "UserId")
+@EqualsAndHashCode(callSuper = true)
 public class Teacher extends User {
 	@Column(nullable = false, length = 8)
-	private String Title;
+	private String title;
 
 	@Column(nullable = false, length = 32)
-	private String Department;
+	private String department;
 
 	@Column(nullable = false, length = 8)
-	private String Room;
+	private String room;
 
 	@OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TeacherSubject> teachersSubjects = new ArrayList<TeacherSubject>();

@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class Grade {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int GradeId;
+	private int gradeId;
 
 	@ManyToOne
 	@JoinColumn(name = "StudentId", nullable = false)
@@ -31,5 +31,5 @@ public class Grade {
 	private Subject subject;
 
 	@Column(nullable = false, length = 2)
-	private int FinalGrade;
+	private int finalGrade;
 }
