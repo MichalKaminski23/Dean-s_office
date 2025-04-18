@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class UserDto extends RepresentationModel<UserDto> {
 	private int userId;
 	private String name;
 	private String surname;

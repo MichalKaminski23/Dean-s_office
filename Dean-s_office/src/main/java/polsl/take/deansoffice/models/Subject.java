@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 public class Subject {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int subjectId;
+	private Integer subjectId;
 
 	@Column(nullable = false, length = 32)
 	private String name;

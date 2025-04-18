@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentDto extends RepresentationModel<StudentDto> {
-	private int userId;
+	private Integer studentId;
 	private String album;
 	private String field;
 	private String specialization;

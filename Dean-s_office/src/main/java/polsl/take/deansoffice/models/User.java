@@ -2,13 +2,13 @@ package polsl.take.deansoffice.models;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,11 +19,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Inheritance(strategy = InheritanceType.JOINED)
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int userId;
+	private Integer userId;
 
 	@Column(nullable = false, length = 64)
 	private String name;
@@ -59,5 +58,10 @@ public class User {
 	private LocalDate endDate;
 
 	@Column(nullable = false)
-	private boolean active;
+	private boolean active = true;
+	
+	/*
+	 * @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	 * private Student student;
+	 */
 }

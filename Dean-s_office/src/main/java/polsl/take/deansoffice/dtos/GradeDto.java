@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GradeDto extends RepresentationModel<GradeDto> {
-	private int gradeId;
-	private int studentId;
-	private int subjectId;
+	private Integer gradeId;
+	private Integer studentId;
+	private Integer subjectId;
 	private int finalGrade;
 }

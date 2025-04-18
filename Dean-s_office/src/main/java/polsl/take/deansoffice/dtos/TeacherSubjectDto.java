@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TeacherSubjectDto extends RepresentationModel<TeacherSubjectDto>{
-	private int teacherSubjectId;
-	private int teacherId;
-	private int subjectId;
+public class TeacherSubjectDto extends RepresentationModel<TeacherSubjectDto> {
+	private Integer teacherSubjectId;
+	private Integer teacherId;
+	private Integer subjectId;
 }
