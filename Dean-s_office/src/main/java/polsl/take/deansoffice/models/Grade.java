@@ -23,11 +23,11 @@ public class Grade {
 	private Integer gradeId;
 
 	@ManyToOne
-	@JoinColumn(name = "StudentId", nullable = false)
+	@JoinColumn(name = "studentId", nullable = false)
 	private Student student;
 
 	@ManyToOne
-	@JoinColumn(name = "SubjectId", nullable = false)
+	@JoinColumn(name = "subjectId", nullable = false)
 	private Subject subject;
 
 	@Column(nullable = false, length = 2)

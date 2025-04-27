@@ -2,13 +2,11 @@ package polsl.take.deansoffice.models;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -59,9 +57,4 @@ public class User {
 
 	@Column(nullable = false)
 	private boolean active = true;
-	
-	/*
-	 * @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	 * private Student student;
-	 */
 }

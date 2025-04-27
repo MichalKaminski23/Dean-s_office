@@ -11,6 +11,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
 
+import polsl.take.deansoffice.controllers.GradeController;
 import polsl.take.deansoffice.controllers.StudentController;
 import polsl.take.deansoffice.controllers.UserController;
 import polsl.take.deansoffice.dtos.StudentDto;
@@ -90,8 +91,8 @@ public class StudentService {
 
 		return EntityModel.of(studentDto,
 				linkTo(methodOn(StudentController.class).getStudentById(student.getStudentId())).withSelfRel(),
-				linkTo(methodOn(UserController.class).getUserById(student.getStudentId())).withRel("user"));
-		//grades!!!
+				linkTo(methodOn(UserController.class).getUserById(student.getStudentId())).withRel("user"),
+				linkTo(methodOn(GradeController.class).getGradeById(student.getStudentId())).withRel("grade"));
 	}
 
 	private Student toEntity(StudentDto studentDto) {

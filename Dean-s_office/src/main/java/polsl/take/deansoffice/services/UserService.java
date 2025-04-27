@@ -14,6 +14,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import polsl.take.deansoffice.models.User;
 import polsl.take.deansoffice.controllers.UserController;
 import polsl.take.deansoffice.dtos.UserDto;
+import polsl.take.deansoffice.exceptions.MyException;
 import polsl.take.deansoffice.repositories.UserRepository;
 
 @Service
@@ -33,22 +34,17 @@ public class UserService {
 	}
 
 	public EntityModel<UserDto> getUserById(Integer id) {
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+		User user = userRepository.findById(id).orElseThrow(() -> new MyException("User not found"));
 		return toDto(user);
 	}
 
 	public EntityModel<UserDto> createUser(UserDto userDto) {
+
 		User user = toEntity(userDto);
 		User savedUser = userRepository.save(user);
 		return toDto(savedUser);
-	}
 
-//	public EntityModel<UserDto> updateUser(Integer id, UserDto userDto) {
-//		User user = toEntity(userDto);
-//		user.setUserId(id);
-//		User updatedUser = userRepository.save(user);
-//		return toDto(updatedUser);
-//	}
+	}
 
 	public EntityModel<UserDto> updateUser(Integer id, Map<String, Object> updates) {
 		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
@@ -125,8 +121,13 @@ public class UserService {
 		userDto.setStartDate(user.getStartDate());
 		userDto.setEndDate(user.getEndDate());
 		userDto.setActive(user.isActive());
-		return EntityModel.of(userDto,
-				linkTo(methodOn(UserController.class).getUserById(user.getUserId())).withSelfRel());
+
+		if (userDto.getName().isBlank() || userDto.getName().isEmpty()) {
+			throw new MyException("Error");
+		} else {
+			return EntityModel.of(userDto,
+					linkTo(methodOn(UserController.class).getUserById(user.getUserId())).withSelfRel());
+		}
 	}
 
 	private User toEntity(UserDto userDto) {
