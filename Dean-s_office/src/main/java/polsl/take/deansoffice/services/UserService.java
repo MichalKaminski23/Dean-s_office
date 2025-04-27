@@ -1,5 +1,8 @@
 package polsl.take.deansoffice.services;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -8,13 +11,12 @@ import java.util.stream.Collectors;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import polsl.take.deansoffice.models.User;
 import polsl.take.deansoffice.controllers.UserController;
 import polsl.take.deansoffice.dtos.UserDto;
-import polsl.take.deansoffice.exceptions.MyException;
+import polsl.take.deansoffice.exceptions.ResourceConflictException;
+import polsl.take.deansoffice.exceptions.ResourceNotFoundException;
+import polsl.take.deansoffice.models.User;
 import polsl.take.deansoffice.repositories.UserRepository;
 
 @Service
@@ -34,20 +36,42 @@ public class UserService {
 	}
 
 	public EntityModel<UserDto> getUserById(Integer id) {
-		User user = userRepository.findById(id).orElseThrow(() -> new MyException("User not found"));
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
 		return toDto(user);
 	}
 
 	public EntityModel<UserDto> createUser(UserDto userDto) {
+		if (userRepository.existsByEmail(userDto.getEmail())) {
+			throw new ResourceConflictException("Email already exists: " + userDto.getEmail());
+		}
+
+		if (userRepository.existsByPhone(userDto.getPhone())) {
+			throw new ResourceConflictException("Phone already exists: " + userDto.getPhone());
+		}
 
 		User user = toEntity(userDto);
 		User savedUser = userRepository.save(user);
 		return toDto(savedUser);
-
 	}
 
 	public EntityModel<UserDto> updateUser(Integer id, Map<String, Object> updates) {
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+
+		if (updates.containsKey("email")) {
+			String newEmail = updates.get("email").toString();
+			if (userRepository.existsByEmailAndUserIdNot(newEmail, id)) {
+				throw new ResourceConflictException("Email already exists: " + newEmail);
+			}
+		}
+
+		if (updates.containsKey("phone")) {
+			String newPhone = updates.get("phone").toString();
+			if (userRepository.existsByPhoneAndUserIdNot(newPhone, id)) {
+				throw new ResourceConflictException("Phone already exists: " + newPhone);
+			}
+		}
 
 		updates.forEach((field, value) -> {
 			switch (field) {
@@ -88,7 +112,7 @@ public class UserService {
 				user.setActive((Boolean) value);
 				break;
 			default:
-				throw new IllegalArgumentException("Unknown field: " + field);
+				throw new ResourceConflictException("Unknown field: " + field);
 			}
 		});
 
@@ -96,12 +120,10 @@ public class UserService {
 		return toDto(updatedUser);
 	}
 
-//	public void deleteUser(Integer id) {
-//		userRepository.deleteById(id);
-//	}
-
 	public void softDeleteUser(Integer id) {
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+
 		user.setActive(false);
 		userRepository.save(user);
 	}
@@ -121,13 +143,8 @@ public class UserService {
 		userDto.setStartDate(user.getStartDate());
 		userDto.setEndDate(user.getEndDate());
 		userDto.setActive(user.isActive());
-
-		if (userDto.getName().isBlank() || userDto.getName().isEmpty()) {
-			throw new MyException("Error");
-		} else {
-			return EntityModel.of(userDto,
-					linkTo(methodOn(UserController.class).getUserById(user.getUserId())).withSelfRel());
-		}
+		return EntityModel.of(userDto,
+				linkTo(methodOn(UserController.class).getUserById(user.getUserId())).withSelfRel());
 	}
 
 	private User toEntity(UserDto userDto) {

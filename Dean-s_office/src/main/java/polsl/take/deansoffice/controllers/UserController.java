@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,32 +39,18 @@ public class UserController {
 	}
 
 	@PostMapping
-	public ResponseEntity<EntityModel<UserDto>> createUser(@RequestBody UserDto userDto) {
-		EntityModel<UserDto> createdUser = userService.createUser(userDto);
-		return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+	public ResponseEntity<EntityModel<UserDto>> createUser(@Valid @RequestBody UserDto userDto) {
+		return ResponseEntity.ok(userService.createUser(userDto));
 	}
 
-	/*
-	 * @PutMapping("/{id}") public ResponseEntity<EntityModel<UserDto>>
-	 * updateUser(@PathVariable Integer id, @RequestBody UserDto userDto) { return
-	 * ResponseEntity.ok(userService.updateUser(id, userDto)); }
-	 */
-
 	@PatchMapping("/{id}")
-	public ResponseEntity<EntityModel<UserDto>> updateUser(@PathVariable Integer id,
+	public ResponseEntity<EntityModel<UserDto>> updateUser(@Valid @PathVariable Integer id,
 			@RequestBody Map<String, Object> updates) {
 		return ResponseEntity.ok(userService.updateUser(id, updates));
 	}
 
-//	@DeleteMapping("/{id}")
-//	public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
-//		userService.deleteUser(id);
-//		return ResponseEntity.noContent().build();
-//	}
-
-	@DeleteMapping("/{id}/deactivate")
+	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> softDeleteUser(@PathVariable Integer id) {
-		userService.softDeleteUser(id);
 		return ResponseEntity.noContent().build();
 	}
 

@@ -8,4 +8,12 @@ import polsl.take.deansoffice.models.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
+	boolean existsByEmail(String email);
+
+	boolean existsByPhone(String phone);
+
+	boolean existsByEmailAndUserIdNot(String email, Integer userId);
+
+	boolean existsByPhoneAndUserIdNot(String phone, Integer userId);
+
 }

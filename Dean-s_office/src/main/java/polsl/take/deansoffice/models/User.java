@@ -37,7 +37,7 @@ public class User {
 	@Column(nullable = false, length = 32)
 	private String country;
 
-	@Column(nullable = false, length = 16)
+	@Column(nullable = false, length = 32)
 	private String city;
 
 	@Column(nullable = false, length = 16)
