@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +19,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto extends RepresentationModel<UserDto> {
-	private int userId;
+	@NotNull(message = "Id can not be empty!")
+	private Integer userId;
 
 	@NotBlank(message = "Name can not be empty!")
 	@Size(max = 64, message = "The max size of name is 64!")
@@ -30,11 +32,12 @@ public class UserDto extends RepresentationModel<UserDto> {
 
 	@NotBlank(message = "Email can not be empty!")
 	@Size(max = 128, message = "The max size of email is 128!")
+	@Email(message = "Incorrect format email!")
 	private String email;
 
 	@NotBlank(message = "Phone can not be empty!")
 	@Size(max = 64, message = "The max size of phone is 16!")
-	@Pattern(regexp = "\\+?\\d{4}?\\d{9,15}", message = "Incorrect phone number!")
+	@Pattern(regexp = "\\+?\\d{9,15}", message = "Incorrect phone number!")
 	private String phone;
 
 	@NotBlank(message = "Country can not be empty!")

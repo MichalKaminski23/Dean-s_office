@@ -1,5 +1,12 @@
 package polsl.take.deansoffice.services;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
@@ -8,17 +15,16 @@ import polsl.take.deansoffice.controllers.GradeController;
 import polsl.take.deansoffice.controllers.StudentController;
 import polsl.take.deansoffice.controllers.SubjectController;
 import polsl.take.deansoffice.dtos.GradeDto;
+import polsl.take.deansoffice.exceptions.ResourceConflictException;
+import polsl.take.deansoffice.exceptions.ResourceNotFoundException;
 import polsl.take.deansoffice.models.Grade;
 import polsl.take.deansoffice.models.Student;
 import polsl.take.deansoffice.models.Subject;
+import polsl.take.deansoffice.models.User;
 import polsl.take.deansoffice.repositories.GradeRepository;
 import polsl.take.deansoffice.repositories.StudentRepository;
 import polsl.take.deansoffice.repositories.SubjectRepository;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import polsl.take.deansoffice.repositories.UserRepository;
 
 @Service
 public class GradeService {
@@ -26,12 +32,14 @@ public class GradeService {
 	private final GradeRepository gradeRepository;
 	private final StudentRepository studentRepository;
 	private final SubjectRepository subjectRepository;
+	private final UserRepository userRepository;
 
 	public GradeService(GradeRepository gradeRepository, StudentRepository studentRepository,
-			SubjectRepository subjectRepository) {
+			SubjectRepository subjectRepository, UserRepository userRepository) {
 		this.gradeRepository = gradeRepository;
 		this.studentRepository = studentRepository;
 		this.subjectRepository = subjectRepository;
+		this.userRepository = userRepository;
 	}
 
 	public CollectionModel<EntityModel<GradeDto>> getAllGrades() {
@@ -42,46 +50,75 @@ public class GradeService {
 	}
 
 	public EntityModel<GradeDto> getGradeById(Integer id) {
-		Grade grade = gradeRepository.findById(id).orElseThrow(() -> new RuntimeException("Grade not found"));
+		Grade grade = gradeRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Grade with id " + id + " not found"));
 		return toDto(grade);
 	}
 
 	public EntityModel<GradeDto> createGrade(Integer studentId, Integer subjectId, GradeDto gradeDto) {
-		Grade grade = new Grade();
 		Student student = studentRepository.findById(studentId)
-				.orElseThrow(() -> new RuntimeException("Student not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Student with id " + studentId + " not found"));
 		Subject subject = subjectRepository.findById(subjectId)
-				.orElseThrow(() -> new RuntimeException("Subject not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Subject with id " + subjectId + " not found"));
 
+		User user = userRepository.findById(studentId)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id " + studentId + " not found"));
+
+		student.setUser(user);
+
+		if (user.isActive() == false) {
+			throw new ResourceConflictException("User with id " + studentId + " is not active");
+		}
+
+		Grade grade = toEntity(gradeDto);
 		grade.setStudent(student);
 		grade.setSubject(subject);
-		grade.setFinalGrade(gradeDto.getFinalGrade());
-
-		Grade saved = gradeRepository.save(grade);
-		return toDto(saved);
+		Grade savedGrade = gradeRepository.save(grade);
+		return toDto(savedGrade);
 	}
 
-	public EntityModel<GradeDto> updateGrade(Integer id, GradeDto gradeDto) {
-		Grade existingGrade = gradeRepository.findById(id).orElseThrow(() -> new RuntimeException("Grade not found"));
+	public EntityModel<GradeDto> updateGrade(Integer id, Integer studentId, Integer subjectId,
+			Map<String, Object> updates) {
+		Grade grade = gradeRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Grade with id " + id + " not found"));
 
-		// optionally update relationships if they changed
-		if (!existingGrade.getStudent().getStudentId().equals(gradeDto.getStudentId())) {
-			Student student = studentRepository.findById(gradeDto.getStudentId())
-					.orElseThrow(() -> new RuntimeException("Student not found"));
-			existingGrade.setStudent(student);
-		}
-		if (!existingGrade.getSubject().getSubjectId().equals(gradeDto.getSubjectId())) {
-			Subject subject = subjectRepository.findById(gradeDto.getSubjectId())
-					.orElseThrow(() -> new RuntimeException("Subject not found"));
-			existingGrade.setSubject(subject);
-		}
-		existingGrade.setFinalGrade(gradeDto.getFinalGrade());
+		Student student = studentRepository.findById(studentId)
+				.orElseThrow(() -> new ResourceNotFoundException("Student with id " + studentId + " not found"));
 
-		Grade updatedGrade = gradeRepository.save(existingGrade);
+		Subject subject = subjectRepository.findById(subjectId)
+				.orElseThrow(() -> new ResourceNotFoundException("Subject with id " + subjectId + " not found"));
+
+		User user = userRepository.findById(studentId)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id " + studentId + " not found"));
+
+		student.setUser(user);
+
+		if (user.isActive() == false) {
+			throw new ResourceConflictException("User with id " + id + " is not active");
+		}
+
+		updates.forEach((field, value) -> {
+			switch (field) {
+			case "studentId":
+				grade.setStudent((Student) value);
+				break;
+			case "subjectId":
+				grade.setSubject((Subject) value);
+				break;
+			case "finalGrade":
+				grade.setFinalGrade((Integer) value);
+				break;
+			default:
+				throw new ResourceConflictException("Unknown field: " + field);
+			}
+		});
+		Grade updatedGrade = gradeRepository.save(grade);
 		return toDto(updatedGrade);
 	}
 
 	public void deleteGrade(Integer id) {
+		Grade grade = gradeRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Grade with id " + id + " not found"));
 		gradeRepository.deleteById(id);
 	}
 
@@ -100,4 +137,9 @@ public class GradeService {
 						.withRel("subject"));
 	}
 
+	private Grade toEntity(GradeDto gradeDto) {
+		Grade grade = new Grade();
+		grade.setFinalGrade(gradeDto.getFinalGrade());
+		return grade;
+	}
 }

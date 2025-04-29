@@ -8,4 +8,9 @@ import polsl.take.deansoffice.models.Student;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Integer> {
 
+	boolean existsByUserUserId(Integer userId);
+
+	boolean existsByAlbum(String album);
+
+	boolean existsByAlbumAndStudentIdNot(String album, Integer studentId);
 }

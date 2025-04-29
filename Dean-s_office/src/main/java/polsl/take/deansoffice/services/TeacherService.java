@@ -11,9 +11,12 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
 
+import polsl.take.deansoffice.controllers.SubjectController;
 import polsl.take.deansoffice.controllers.TeacherController;
 import polsl.take.deansoffice.controllers.UserController;
 import polsl.take.deansoffice.dtos.TeacherDto;
+import polsl.take.deansoffice.exceptions.ResourceConflictException;
+import polsl.take.deansoffice.exceptions.ResourceNotFoundException;
 import polsl.take.deansoffice.models.Teacher;
 import polsl.take.deansoffice.models.User;
 import polsl.take.deansoffice.repositories.TeacherRepository;
@@ -39,12 +42,23 @@ public class TeacherService {
 	}
 
 	public EntityModel<TeacherDto> getTeacherById(Integer id) {
-		Teacher teacher = teacherRepository.findById(id).orElseThrow(() -> new RuntimeException("Teacher not found"));
+		Teacher teacher = teacherRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Teacher with id " + id + " not found"));
 		return toDto(teacher);
 	}
 
 	public EntityModel<TeacherDto> createTeacher(Integer id, TeacherDto teacherDto) {
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+		if (teacherRepository.existsByUserUserId(id)) {
+			throw new ResourceConflictException("Teacher for user with id " + id + " already exists");
+		}
+
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Teacher with id " + id + " not found"));
+
+		if (user.isActive() == false) {
+			throw new ResourceConflictException("User with id " + id + " is not active");
+		}
+
 		Teacher teacher = toEntity(teacherDto);
 		teacher.setUser(user);
 		Teacher savedTeacher = teacherRepository.save(teacher);
@@ -52,7 +66,17 @@ public class TeacherService {
 	}
 
 	public EntityModel<TeacherDto> updateTeacher(Integer id, Map<String, Object> updates) {
-		Teacher teacher = teacherRepository.findById(id).orElseThrow(() -> new RuntimeException("Student not found"));
+		Teacher teacher = teacherRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Teacher with id " + id + " not found"));
+
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+
+		teacher.setUser(user);
+
+		if (user.isActive() == false) {
+			throw new ResourceConflictException("User with id " + id + " is not active");
+		}
 
 		updates.forEach((field, value) -> {
 			switch (field) {
@@ -66,7 +90,7 @@ public class TeacherService {
 				teacher.setRoom((String) value);
 				break;
 			default:
-				throw new IllegalArgumentException("Unknown field: " + field);
+				throw new ResourceConflictException("Unknown field: " + field);
 			}
 		});
 
@@ -83,8 +107,10 @@ public class TeacherService {
 
 		return EntityModel.of(teacherDto,
 				linkTo(methodOn(TeacherController.class).getTeacherById(teacher.getTeacherId())).withSelfRel(),
-				linkTo(methodOn(UserController.class).getUserById(teacher.getTeacherId())).withRel("user"));
-		// subjects!!!
+				linkTo(methodOn(UserController.class).getUserById(teacher.getTeacherId())).withRel("user"),
+				// Tutaj powinna być lista przedmiotów nauczyciela których jest szefem
+				// (supervisor):
+				linkTo(methodOn(SubjectController.class).getSubjectById(teacher.getTeacherId())).withRel("subject"));
 	}
 
 	private Teacher toEntity(TeacherDto teacherDto) {

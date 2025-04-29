@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class SubjectDto extends RepresentationModel<SubjectDto> {
 	private Integer subjectId;
 	private String name;
-	private Integer teacheriD;
+	private Integer teacherId;
 }

@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import polsl.take.deansoffice.dtos.StudentDto;
 import polsl.take.deansoffice.services.StudentService;
 
 @RestController
 @RequestMapping("/api/students")
 public class StudentController {
-	
+
 	private final StudentService studentService;
 
 	public StudentController(StudentService studentService) {
@@ -38,7 +39,7 @@ public class StudentController {
 	}
 
 	@PostMapping("/{id}")
-	public ResponseEntity<EntityModel<StudentDto>> createStudent(@PathVariable Integer id,
+	public ResponseEntity<EntityModel<StudentDto>> createStudent(@Valid @PathVariable Integer id,
 			@RequestBody StudentDto studentDto) {
 		EntityModel<StudentDto> createdStudent = studentService.createStudent(id, studentDto);
 		URI self = URI.create(createdStudent.getRequiredLink("self").getHref());
@@ -46,7 +47,7 @@ public class StudentController {
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<EntityModel<StudentDto>> updateStudent(@PathVariable Integer id,
+	public ResponseEntity<EntityModel<StudentDto>> updateStudent(@Valid @PathVariable Integer id,
 			@RequestBody Map<String, Object> updates) {
 		return ResponseEntity.ok(studentService.updateStudent(id, updates));
 	}

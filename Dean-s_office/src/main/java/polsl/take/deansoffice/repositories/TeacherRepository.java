@@ -8,4 +8,5 @@ import polsl.take.deansoffice.models.Teacher;
 @Repository
 public interface TeacherRepository extends JpaRepository<Teacher, Integer> {
 
+	boolean existsByUserUserId(Integer userId);
 }

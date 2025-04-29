@@ -12,6 +12,10 @@ public class DeanSOfficeApplication {
 		SpringApplication.run(DeanSOfficeApplication.class, args);
 	}
 
+	// TO-DO: dokończyć walidację pól oraz pamiętać o wyjątku jak ktoś poda np.
+	// stringa zamiast inta!!!
+	// zrobić poprawne linki!!!
+	// posprawdzać wszystko!!!
 	@Bean
 	public CommandLineRunner testRunner() {
 		return args -> {

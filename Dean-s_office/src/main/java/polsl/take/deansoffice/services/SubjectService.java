@@ -1,5 +1,8 @@
 package polsl.take.deansoffice.services;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,8 +17,6 @@ import polsl.take.deansoffice.models.Subject;
 import polsl.take.deansoffice.models.Teacher;
 import polsl.take.deansoffice.repositories.SubjectRepository;
 import polsl.take.deansoffice.repositories.TeacherRepository;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class SubjectService {
@@ -43,7 +44,7 @@ public class SubjectService {
 	public EntityModel<SubjectDto> createSubject(SubjectDto dto) {
 		Subject subject = new Subject();
 		subject.setName(dto.getName());
-		Teacher teacher = teacherRepository.findById(dto.getTeacheriD())
+		Teacher teacher = teacherRepository.findById(dto.getTeacherId())
 				.orElseThrow(() -> new RuntimeException("Teacher not found"));
 		subject.setTeacher(teacher);
 
@@ -56,8 +57,8 @@ public class SubjectService {
 				.orElseThrow(() -> new RuntimeException("Subject not found"));
 
 		existingSubject.setName(subjectDto.getName());
-		if (!existingSubject.getTeacher().getTeacherId().equals(subjectDto.getTeacheriD())) {
-			Teacher teacher = teacherRepository.findById(subjectDto.getTeacheriD())
+		if (!existingSubject.getTeacher().getTeacherId().equals(subjectDto.getTeacherId())) {
+			Teacher teacher = teacherRepository.findById(subjectDto.getTeacherId())
 					.orElseThrow(() -> new RuntimeException("Teacher not found"));
 			existingSubject.setTeacher(teacher);
 		}
@@ -74,11 +75,11 @@ public class SubjectService {
 		SubjectDto subjectDto = new SubjectDto();
 		subjectDto.setSubjectId(subject.getSubjectId());
 		subjectDto.setName(subject.getName());
-		subjectDto.setTeacheriD(subject.getTeacher().getTeacherId());
+		subjectDto.setTeacherId(subject.getTeacher().getTeacherId());
 
 		return EntityModel.of(subjectDto,
 				linkTo(methodOn(SubjectController.class).getSubjectById(subjectDto.getSubjectId())).withSelfRel(),
-				linkTo(methodOn(TeacherController.class).getTeacherById(subjectDto.getTeacheriD()))
+				linkTo(methodOn(TeacherController.class).getTeacherById(subjectDto.getTeacherId()))
 						.withRel("supervisor"));
 	}
 }

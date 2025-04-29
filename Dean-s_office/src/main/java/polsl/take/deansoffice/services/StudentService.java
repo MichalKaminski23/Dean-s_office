@@ -15,6 +15,8 @@ import polsl.take.deansoffice.controllers.GradeController;
 import polsl.take.deansoffice.controllers.StudentController;
 import polsl.take.deansoffice.controllers.UserController;
 import polsl.take.deansoffice.dtos.StudentDto;
+import polsl.take.deansoffice.exceptions.ResourceConflictException;
+import polsl.take.deansoffice.exceptions.ResourceNotFoundException;
 import polsl.take.deansoffice.models.Student;
 import polsl.take.deansoffice.models.User;
 import polsl.take.deansoffice.repositories.StudentRepository;
@@ -39,21 +41,53 @@ public class StudentService {
 	}
 
 	public EntityModel<StudentDto> getStudentById(Integer id) {
-		Student student = studentRepository.findById(id).orElseThrow(() -> new RuntimeException("Student not found"));
+		Student student = studentRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Student with id " + id + " not found"));
 		return toDto(student);
 	}
 
 	public EntityModel<StudentDto> createStudent(Integer id, StudentDto studentDto) {
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+		if (studentRepository.existsByAlbum(studentDto.getAlbum())) {
+			throw new ResourceConflictException("Album already exists: " + studentDto.getAlbum());
+		}
+
+		if (studentRepository.existsByUserUserId(id)) {
+			throw new ResourceConflictException("Student for user with id " + id + " already exists");
+		}
+
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Student with id " + id + " not found"));
+
+		if (user.isActive() == false) {
+			throw new ResourceConflictException("User with id " + id + " is not active");
+		}
+
 		Student student = toEntity(studentDto);
 		student.setUser(user);
 		Student savedStudent = studentRepository.save(student);
 		return toDto(savedStudent);
 	}
-	
-	public EntityModel<StudentDto> updateStudent(Integer id, Map<String, Object> updates){
-		Student student = studentRepository.findById(id).orElseThrow(() -> new RuntimeException("Student not found"));
-		
+
+	public EntityModel<StudentDto> updateStudent(Integer id, Map<String, Object> updates) {
+		Student student = studentRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Student with id " + id + " not found"));
+
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+
+		student.setUser(user);
+
+		if (user.isActive() == false) {
+			throw new ResourceConflictException("User with id " + id + " is not active");
+		}
+
+		if (updates.containsKey("album")) {
+			String newAlbum = updates.get("email").toString();
+			if (studentRepository.existsByAlbumAndStudentIdNot(newAlbum, id)) {
+				throw new ResourceConflictException("Album already exists: " + newAlbum);
+			}
+		}
+
 		updates.forEach((field, value) -> {
 			switch (field) {
 			case "album":
@@ -72,7 +106,7 @@ public class StudentService {
 				student.setDegree((String) value);
 				break;
 			default:
-				throw new IllegalArgumentException("Unknown field: " + field);
+				throw new ResourceConflictException("Unknown field: " + field);
 			}
 		});
 
@@ -92,7 +126,9 @@ public class StudentService {
 		return EntityModel.of(studentDto,
 				linkTo(methodOn(StudentController.class).getStudentById(student.getStudentId())).withSelfRel(),
 				linkTo(methodOn(UserController.class).getUserById(student.getStudentId())).withRel("user"),
+				// Tutaj powinna być lista ocen studenta:
 				linkTo(methodOn(GradeController.class).getGradeById(student.getStudentId())).withRel("grade"));
+
 	}
 
 	private Student toEntity(StudentDto studentDto) {

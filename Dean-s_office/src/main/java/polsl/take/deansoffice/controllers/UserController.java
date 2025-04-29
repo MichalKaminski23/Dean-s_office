@@ -1,5 +1,6 @@
 package polsl.take.deansoffice.controllers;
 
+import java.net.URI;
 import java.util.Map;
 
 import org.springframework.hateoas.CollectionModel;
@@ -40,7 +41,9 @@ public class UserController {
 
 	@PostMapping
 	public ResponseEntity<EntityModel<UserDto>> createUser(@Valid @RequestBody UserDto userDto) {
-		return ResponseEntity.ok(userService.createUser(userDto));
+		EntityModel<UserDto> createdUser = userService.createUser(userDto);
+		URI self = URI.create(createdUser.getRequiredLink("self").getHref());
+		return ResponseEntity.created(self).body(createdUser);
 	}
 
 	@PatchMapping("/{id}")
@@ -50,8 +53,9 @@ public class UserController {
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> softDeleteUser(@PathVariable Integer id) {
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<String> softDeleteUser(@PathVariable Integer id) {
+		userService.softDeleteUser(id);
+		return ResponseEntity.ok("User with id " + id + " was deactivated successfully");
 	}
 
 }
