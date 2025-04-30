@@ -126,8 +126,7 @@ public class StudentService {
 		return EntityModel.of(studentDto,
 				linkTo(methodOn(StudentController.class).getStudentById(student.getStudentId())).withSelfRel(),
 				linkTo(methodOn(UserController.class).getUserById(student.getStudentId())).withRel("user"),
-				// Tutaj powinna być lista ocen studenta:
-				linkTo(methodOn(GradeController.class).getGradeById(student.getStudentId())).withRel("grade"));
+				linkTo(methodOn(GradeController.class).getAllGradesForStudent(student.getStudentId())).withRel("grades"));
 
 	}
 

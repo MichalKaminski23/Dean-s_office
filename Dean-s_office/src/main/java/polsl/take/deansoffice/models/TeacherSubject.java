@@ -28,4 +28,9 @@ public class TeacherSubject {
 	@ManyToOne
 	@JoinColumn(name = "SubjectId", nullable = false)
 	private Subject subject;
+
+	public Class<?> getAllSubjectsForTeacher(Integer teacherId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -58,9 +58,10 @@ public class GradeService {
 	public EntityModel<GradeDto> createGrade(Integer studentId, Integer subjectId, GradeDto gradeDto) {
 		Student student = studentRepository.findById(studentId)
 				.orElseThrow(() -> new ResourceNotFoundException("Student with id " + studentId + " not found"));
+		
 		Subject subject = subjectRepository.findById(subjectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject with id " + subjectId + " not found"));
-
+		
 		User user = userRepository.findById(studentId)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id " + studentId + " not found"));
 
@@ -96,15 +97,12 @@ public class GradeService {
 		if (user.isActive() == false) {
 			throw new ResourceConflictException("User with id " + id + " is not active");
 		}
+		
+		grade.setStudent(student);
+		grade.setSubject(subject);
 
 		updates.forEach((field, value) -> {
 			switch (field) {
-			case "studentId":
-				grade.setStudent((Student) value);
-				break;
-			case "subjectId":
-				grade.setSubject((Subject) value);
-				break;
 			case "finalGrade":
 				grade.setFinalGrade((Integer) value);
 				break;
@@ -112,6 +110,7 @@ public class GradeService {
 				throw new ResourceConflictException("Unknown field: " + field);
 			}
 		});
+
 		Grade updatedGrade = gradeRepository.save(grade);
 		return toDto(updatedGrade);
 	}
@@ -120,6 +119,22 @@ public class GradeService {
 		Grade grade = gradeRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Grade with id " + id + " not found"));
 		gradeRepository.deleteById(id);
+	}
+	
+	public CollectionModel<EntityModel<GradeDto>> getAllGradesForStudent(Integer studentId) {
+		Student student = studentRepository.findById(studentId)
+				.orElseThrow(() -> new ResourceNotFoundException("Student with id " + studentId + " not found"));
+		
+	    List<EntityModel<GradeDto>> grades = gradeRepository.findByStudentStudentId(studentId).stream()
+	            .map(this::toDto)
+	            .collect(Collectors.toList());
+	    
+	    if(grades.size() == 0) {
+	    	throw new ResourceNotFoundException("Student with id " + studentId + " doesn't have any grades");
+	    }
+
+	    return CollectionModel.of(grades, 
+	            linkTo(methodOn(GradeController.class).getAllGradesForStudent(studentId)).withSelfRel());
 	}
 
 	private EntityModel<GradeDto> toDto(Grade grade) {

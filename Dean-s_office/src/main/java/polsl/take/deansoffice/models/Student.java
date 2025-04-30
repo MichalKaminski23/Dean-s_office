@@ -42,7 +42,7 @@ public class Student {
 	@Column(nullable = false, length = 2)
 	private int semester;
 
-	@Column(nullable = false, length = 8)
+	@Column(nullable = false, length = 32)
 	private String degree;
 
 	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)

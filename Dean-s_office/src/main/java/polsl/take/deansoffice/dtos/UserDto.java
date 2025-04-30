@@ -24,10 +24,12 @@ public class UserDto extends RepresentationModel<UserDto> {
 
 	@NotBlank(message = "Name can not be empty!")
 	@Size(max = 64, message = "The max size of name is 64!")
+    @Pattern(regexp = "^[A-Za-z\s]+$", message = "Name must have only letters!")
 	private String name;
 
 	@NotBlank(message = "Surname can not be empty!")
 	@Size(max = 64, message = "The max size of surname is 64!")
+	@Pattern(regexp = "^[A-Za-z\s]+$", message = "Surname must have only letters!")
 	private String surname;
 
 	@NotBlank(message = "Email can not be empty!")
@@ -42,10 +44,12 @@ public class UserDto extends RepresentationModel<UserDto> {
 
 	@NotBlank(message = "Country can not be empty!")
 	@Size(max = 32, message = "The max size of country is 32!")
+	@Pattern(regexp = "^[A-Za-z\s]+$", message = "Country must have only letters!")
 	private String country;
 
 	@NotBlank(message = "City can not be empty!")
 	@Size(max = 32, message = "The max size of city is 32!")
+	@Pattern(regexp = "^[A-Za-z\s]+$", message = "City must have only letters!")
 	private String city;
 
 	@NotBlank(message = "Postal code can not be empty!")

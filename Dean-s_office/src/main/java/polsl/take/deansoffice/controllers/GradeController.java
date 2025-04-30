@@ -59,4 +59,9 @@ public class GradeController {
 		gradeService.deleteGrade(id);
 		return ResponseEntity.ok("Grade with id " + id + " was deleted successfully");
 	}
+	
+    @GetMapping("/students/{studentId}/grades")
+    public ResponseEntity<CollectionModel<EntityModel<GradeDto>>> getAllGradesForStudent(@PathVariable Integer studentId) {
+        return ResponseEntity.ok(gradeService.getAllGradesForStudent(studentId));
+    }
 }

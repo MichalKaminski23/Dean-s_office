@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import polsl.take.deansoffice.controllers.SubjectController;
 import polsl.take.deansoffice.controllers.TeacherController;
+import polsl.take.deansoffice.controllers.TeacherSubjectController;
 import polsl.take.deansoffice.controllers.UserController;
 import polsl.take.deansoffice.dtos.TeacherDto;
 import polsl.take.deansoffice.exceptions.ResourceConflictException;
@@ -110,7 +111,8 @@ public class TeacherService {
 				linkTo(methodOn(UserController.class).getUserById(teacher.getTeacherId())).withRel("user"),
 				// Tutaj powinna być lista przedmiotów nauczyciela których jest szefem
 				// (supervisor):
-				linkTo(methodOn(SubjectController.class).getSubjectById(teacher.getTeacherId())).withRel("subject"));
+				// albo ogólnie lista przedmiotów
+				linkTo(methodOn(TeacherSubjectController.class).getAllSubjectsForTeacher(teacher.getTeacherId())).withRel("subject"));
 	}
 
 	private Teacher toEntity(TeacherDto teacherDto) {

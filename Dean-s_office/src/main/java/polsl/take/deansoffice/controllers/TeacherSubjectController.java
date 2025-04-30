@@ -7,9 +7,9 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,29 +31,33 @@ public class TeacherSubjectController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<EntityModel<TeacherSubjectDto>> getTeacherSubjectById(@PathVariable("id") Integer id) {
+	public ResponseEntity<EntityModel<TeacherSubjectDto>> getTeacherSubjectById(@PathVariable Integer id) {
 		return ResponseEntity.ok(teacherSubjectService.getTeacherSubjectById(id));
 	}
 
-	@PostMapping("/teacher/{teacherId}/subject/{subjectId}")
+	@PostMapping("/teachers/{teacherId}/subjects/{subjectId}")
 	public ResponseEntity<EntityModel<TeacherSubjectDto>> createTeacherSubject(@PathVariable Integer teacherId,
 			@PathVariable Integer subjectId) {
-
 		EntityModel<TeacherSubjectDto> model = teacherSubjectService.createTeacherSubject(teacherId, subjectId);
 		URI self = URI.create(model.getRequiredLink("self").getHref());
 		return ResponseEntity.created(self).body(model);
 	}
 
-	@PutMapping("/{id}/teacher/{teacherId}/subject/{subjectId}")
+	@PatchMapping("/{id}/teachers/{teacherId}/subjects/{subjectId}")
 	public ResponseEntity<EntityModel<TeacherSubjectDto>> updateTeacherSubject(@PathVariable Integer id,
 			@PathVariable Integer teacherId, @PathVariable Integer subjectId) {
-
 		return ResponseEntity.ok(teacherSubjectService.updateTeacherSubject(id, teacherId, subjectId));
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteTeacherSubject(@PathVariable Integer id) {
+	public ResponseEntity<String> deleteTeacherSubject(@PathVariable Integer id) {
 		teacherSubjectService.deleteTeacherSubject(id);
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.ok("Teacher's subject with id " + id + " was deleted successfully");
+	}
+
+	@GetMapping("/teachers/{teacherId}/subjects")
+	public ResponseEntity<CollectionModel<EntityModel<TeacherSubjectDto>>> getAllSubjectsForTeacher(
+			@PathVariable Integer teacherId) {
+		return ResponseEntity.ok(teacherSubjectService.getAllSubjectsForTeacher(teacherId));
 	}
 }
