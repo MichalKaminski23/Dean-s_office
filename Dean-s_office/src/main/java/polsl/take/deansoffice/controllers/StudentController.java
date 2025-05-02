@@ -1,7 +1,6 @@
 package polsl.take.deansoffice.controllers;
 
 import java.net.URI;
-import java.util.Map;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -34,13 +33,13 @@ public class StudentController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<EntityModel<StudentDto>> getStudentById(@PathVariable Integer id) {
+	public ResponseEntity<EntityModel<StudentDto>> getStudentById(@Valid @PathVariable Integer id) {
 		return ResponseEntity.ok(studentService.getStudentById(id));
 	}
 
 	@PostMapping("/{id}")
 	public ResponseEntity<EntityModel<StudentDto>> createStudent(@Valid @PathVariable Integer id,
-			@RequestBody StudentDto studentDto) {
+			@Valid @RequestBody StudentDto studentDto) {
 		EntityModel<StudentDto> createdStudent = studentService.createStudent(id, studentDto);
 		URI self = URI.create(createdStudent.getRequiredLink("self").getHref());
 		return ResponseEntity.created(self).body(createdStudent);
@@ -48,7 +47,7 @@ public class StudentController {
 
 	@PatchMapping("/{id}")
 	public ResponseEntity<EntityModel<StudentDto>> updateStudent(@Valid @PathVariable Integer id,
-			@RequestBody Map<String, Object> updates) {
-		return ResponseEntity.ok(studentService.updateStudent(id, updates));
+			@Valid @RequestBody StudentDto studentDto) {
+		return ResponseEntity.ok(studentService.updateStudent(id, studentDto));
 	}
 }

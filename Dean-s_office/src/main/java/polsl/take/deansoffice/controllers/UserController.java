@@ -1,7 +1,6 @@
 package polsl.take.deansoffice.controllers;
 
 import java.net.URI;
-import java.util.Map;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -30,12 +30,13 @@ public class UserController {
 	}
 
 	@GetMapping
-	public ResponseEntity<CollectionModel<EntityModel<UserDto>>> getAllUsers() {
-		return ResponseEntity.ok(userService.getAllUsers());
+	public ResponseEntity<CollectionModel<EntityModel<UserDto>>> getAllUsers(
+			@RequestParam(required = false) Boolean active) {
+		return ResponseEntity.ok(userService.getAllUsers(active));
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<EntityModel<UserDto>> getUserById(@PathVariable Integer id) {
+	public ResponseEntity<EntityModel<UserDto>> getUserById(@Valid @PathVariable Integer id) {
 		return ResponseEntity.ok(userService.getUserById(id));
 	}
 
@@ -48,12 +49,12 @@ public class UserController {
 
 	@PatchMapping("/{id}")
 	public ResponseEntity<EntityModel<UserDto>> updateUser(@Valid @PathVariable Integer id,
-			@RequestBody Map<String, Object> updates) {
-		return ResponseEntity.ok(userService.updateUser(id, updates));
+			@Valid @RequestBody UserDto userDto) {
+		return ResponseEntity.ok(userService.updateUser(id, userDto));
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> softDeleteUser(@PathVariable Integer id) {
+	public ResponseEntity<String> softDeleteUser(@Valid @PathVariable Integer id) {
 		userService.softDeleteUser(id);
 		return ResponseEntity.ok("User with id " + id + " was deactivated successfully");
 	}

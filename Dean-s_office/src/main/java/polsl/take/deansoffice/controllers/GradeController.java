@@ -1,7 +1,6 @@
 package polsl.take.deansoffice.controllers;
 
 import java.net.URI;
-import java.util.Map;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -34,13 +33,13 @@ public class GradeController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<EntityModel<GradeDto>> getGradeById(@PathVariable Integer id) {
+	public ResponseEntity<EntityModel<GradeDto>> getGradeById(@Valid @PathVariable Integer id) {
 		return ResponseEntity.ok(gradeService.getGradeById(id));
 	}
 
 	@PostMapping("/students/{studentId}/subjects/{subjectId}")
 	public ResponseEntity<EntityModel<GradeDto>> createGrade(@Valid @PathVariable Integer studentId,
-			@PathVariable Integer subjectId, @RequestBody GradeDto gradeDto) {
+			@Valid @PathVariable Integer subjectId, @Valid @RequestBody GradeDto gradeDto) {
 		EntityModel<GradeDto> model = gradeService.createGrade(studentId, subjectId, gradeDto);
 		URI self = URI.create(model.getRequiredLink("self").getHref());
 		return ResponseEntity.created(self).body(model);
@@ -48,20 +47,21 @@ public class GradeController {
 
 	@PatchMapping("/{id}/students/{studentId}/subjects/{subjectId}")
 	public ResponseEntity<EntityModel<GradeDto>> updateGrade(@Valid @PathVariable Integer id,
-			@PathVariable Integer studentId, @PathVariable Integer subjectId,
-			@RequestBody Map<String, Object> updates) {
-		EntityModel<GradeDto> model = gradeService.updateGrade(id, studentId, subjectId, updates);
+			@Valid @PathVariable Integer studentId, @Valid @PathVariable Integer subjectId,
+			@Valid @RequestBody GradeDto gradeDto) {
+		EntityModel<GradeDto> model = gradeService.updateGrade(id, studentId, subjectId, gradeDto);
 		return ResponseEntity.ok(model);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteGrade(@PathVariable Integer id) {
+	public ResponseEntity<String> deleteGrade(@Valid @PathVariable Integer id) {
 		gradeService.deleteGrade(id);
 		return ResponseEntity.ok("Grade with id " + id + " was deleted successfully");
 	}
-	
-    @GetMapping("/students/{studentId}/grades")
-    public ResponseEntity<CollectionModel<EntityModel<GradeDto>>> getAllGradesForStudent(@PathVariable Integer studentId) {
-        return ResponseEntity.ok(gradeService.getAllGradesForStudent(studentId));
-    }
+
+	@GetMapping("/students/{studentId}/grades")
+	public ResponseEntity<CollectionModel<EntityModel<GradeDto>>> getAllGradesForStudent(
+			@Valid @PathVariable Integer studentId) {
+		return ResponseEntity.ok(gradeService.getAllGradesForStudent(studentId));
+	}
 }

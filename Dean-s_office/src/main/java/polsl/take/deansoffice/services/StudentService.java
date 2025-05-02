@@ -4,12 +4,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import polsl.take.deansoffice.controllers.GradeController;
 import polsl.take.deansoffice.controllers.StudentController;
@@ -37,6 +37,10 @@ public class StudentService {
 		List<EntityModel<StudentDto>> students = studentRepository.findAll().stream().map(this::toDto)
 				.collect(Collectors.toList());
 
+		if (students.size() == 0) {
+			throw new ResourceNotFoundException("There are not any students yet.");
+		}
+
 		return CollectionModel.of(students, linkTo(methodOn(StudentController.class).getAllStudents()).withSelfRel());
 	}
 
@@ -46,6 +50,7 @@ public class StudentService {
 		return toDto(student);
 	}
 
+	@Transactional
 	public EntityModel<StudentDto> createStudent(Integer id, StudentDto studentDto) {
 		if (studentRepository.existsByAlbum(studentDto.getAlbum())) {
 			throw new ResourceConflictException("Album already exists: " + studentDto.getAlbum());
@@ -62,13 +67,15 @@ public class StudentService {
 			throw new ResourceConflictException("User with id " + id + " is not active");
 		}
 
-		Student student = toEntity(studentDto);
+		Student student = new Student();
+		toEntity(student, studentDto);
 		student.setUser(user);
 		Student savedStudent = studentRepository.save(student);
 		return toDto(savedStudent);
 	}
 
-	public EntityModel<StudentDto> updateStudent(Integer id, Map<String, Object> updates) {
+	@Transactional
+	public EntityModel<StudentDto> updateStudent(Integer id, StudentDto studentDto) {
 		Student student = studentRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Student with id " + id + " not found"));
 
@@ -81,35 +88,12 @@ public class StudentService {
 			throw new ResourceConflictException("User with id " + id + " is not active");
 		}
 
-		if (updates.containsKey("album")) {
-			String newAlbum = updates.get("email").toString();
-			if (studentRepository.existsByAlbumAndStudentIdNot(newAlbum, id)) {
-				throw new ResourceConflictException("Album already exists: " + newAlbum);
-			}
+		if (!student.getAlbum().equals(studentDto.getAlbum())
+				&& studentRepository.existsByAlbumAndStudentIdNot(studentDto.getAlbum(), studentDto.getStudentId())) {
+			throw new ResourceConflictException("Album already exists: " + studentDto.getAlbum());
 		}
 
-		updates.forEach((field, value) -> {
-			switch (field) {
-			case "album":
-				student.setAlbum((String) value);
-				break;
-			case "field":
-				student.setField((String) value);
-				break;
-			case "specialization":
-				student.setSpecialization((String) value);
-				break;
-			case "semester":
-				student.setSemester((Integer) value);
-				break;
-			case "degree":
-				student.setDegree((String) value);
-				break;
-			default:
-				throw new ResourceConflictException("Unknown field: " + field);
-			}
-		});
-
+		toEntity(student, studentDto);
 		Student updatedStudent = studentRepository.save(student);
 		return toDto(updatedStudent);
 	}
@@ -126,12 +110,12 @@ public class StudentService {
 		return EntityModel.of(studentDto,
 				linkTo(methodOn(StudentController.class).getStudentById(student.getStudentId())).withSelfRel(),
 				linkTo(methodOn(UserController.class).getUserById(student.getStudentId())).withRel("user"),
-				linkTo(methodOn(GradeController.class).getAllGradesForStudent(student.getStudentId())).withRel("grades"));
+				linkTo(methodOn(GradeController.class).getAllGradesForStudent(student.getStudentId()))
+						.withRel("grades"));
 
 	}
 
-	private Student toEntity(StudentDto studentDto) {
-		Student student = new Student();
+	private Student toEntity(Student student, StudentDto studentDto) {
 		student.setAlbum(studentDto.getAlbum());
 		student.setField(studentDto.getField());
 		student.setSpecialization(studentDto.getSpecialization());

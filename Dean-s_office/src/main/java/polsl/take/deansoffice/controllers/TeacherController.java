@@ -34,13 +34,13 @@ public class TeacherController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<EntityModel<TeacherDto>> getTeacherById(@PathVariable Integer id) {
+	public ResponseEntity<EntityModel<TeacherDto>> getTeacherById(@Valid @PathVariable Integer id) {
 		return ResponseEntity.ok(teacherService.getTeacherById(id));
 	}
 
 	@PostMapping("/{id}")
 	public ResponseEntity<EntityModel<TeacherDto>> createTeacher(@Valid @PathVariable Integer id,
-			@RequestBody TeacherDto teacherDto) {
+			@Valid @RequestBody TeacherDto teacherDto) {
 		EntityModel<TeacherDto> createdTeacher = teacherService.createTeacher(id, teacherDto);
 		URI self = URI.create(createdTeacher.getRequiredLink("self").getHref());
 		return ResponseEntity.created(self).body(createdTeacher);
@@ -48,7 +48,7 @@ public class TeacherController {
 
 	@PatchMapping("/{id}")
 	public ResponseEntity<EntityModel<TeacherDto>> updateTeacher(@Valid @PathVariable Integer id,
-			@RequestBody Map<String, Object> updates) {
-		return ResponseEntity.ok(teacherService.updateTeacher(id, updates));
+			@Valid @RequestBody TeacherDto teacherDto) {
+		return ResponseEntity.ok(teacherService.updateTeacher(id, teacherDto));
 	}
 }

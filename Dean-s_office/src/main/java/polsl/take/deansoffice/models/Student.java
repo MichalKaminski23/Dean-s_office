@@ -45,6 +45,6 @@ public class Student {
 	@Column(nullable = false, length = 32)
 	private String degree;
 
-	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = false)
 	private List<Grade> grades = new ArrayList<Grade>();
 }

@@ -4,12 +4,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import polsl.take.deansoffice.controllers.SubjectController;
 import polsl.take.deansoffice.controllers.TeacherController;
@@ -41,6 +41,10 @@ public class SubjectService {
 		List<EntityModel<SubjectDto>> subjects = subjectRepository.findAll().stream().map(this::toDto)
 				.collect(Collectors.toList());
 
+		if (subjects.size() == 0) {
+			throw new ResourceNotFoundException("There are not any subjects yet.");
+		}
+
 		return CollectionModel.of(subjects, linkTo(methodOn(SubjectController.class).getAllSubjects()).withSelfRel());
 	}
 
@@ -50,6 +54,7 @@ public class SubjectService {
 		return toDto(subject);
 	}
 
+	@Transactional
 	public EntityModel<SubjectDto> createSubject(Integer teacherId, SubjectDto subjectDto) {
 		Teacher teacher = teacherRepository.findById(teacherId)
 				.orElseThrow(() -> new ResourceNotFoundException("Teacher with id " + teacherId + " not found"));
@@ -63,13 +68,15 @@ public class SubjectService {
 			throw new ResourceConflictException("User with id " + teacherId + " is not active");
 		}
 
-		Subject subject = toEntity(subjectDto);
+		Subject subject = new Subject();
+		toEntity(subject, subjectDto);
 		subject.setTeacher(teacher);
 		Subject savedSubject = subjectRepository.save(subject);
 		return toDto(savedSubject);
 	}
 
-	public EntityModel<SubjectDto> updateSubject(Integer id, Integer teacherId, Map<String, Object> updates) {
+	@Transactional
+	public EntityModel<SubjectDto> updateSubject(Integer id, Integer teacherId, SubjectDto subjectDto) {
 		Subject subject = subjectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject with id " + id + " not found"));
 
@@ -84,26 +91,20 @@ public class SubjectService {
 		if (user.isActive() == false) {
 			throw new ResourceConflictException("User with id " + teacherId + " is not active");
 		}
-		
+
 		subject.setTeacher(teacher);
-
-		updates.forEach((field, value) -> {
-			switch (field) {
-			case "name":
-				subject.setName((String) value);
-				break;
-			default:
-				throw new ResourceConflictException("Unknown field: " + field);
-			}
-		});
-
+		toEntity(subject, subjectDto);
 		Subject updatedSubject = subjectRepository.save(subject);
 		return toDto(updatedSubject);
 	}
 
+	@Transactional
 	public void deleteSubject(Integer id) {
 		Subject subject = subjectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject with id " + id + " not found"));
+		if (!subject.getGrades().isEmpty()) {
+			throw new ResourceConflictException("Cannot delete subject " + id + " — it has related grades");
+		}
 		subjectRepository.deleteById(id);
 	}
 
@@ -119,8 +120,7 @@ public class SubjectService {
 						.withRel("supervisor"));
 	}
 
-	private Subject toEntity(SubjectDto subjectDto) {
-		Subject subject = new Subject();
+	private Subject toEntity(Subject subject, SubjectDto subjectDto) {
 		subject.setName(subjectDto.getName());
 		return subject;
 	}

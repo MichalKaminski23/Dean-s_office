@@ -3,14 +3,13 @@ package polsl.take.deansoffice.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import polsl.take.deansoffice.controllers.UserController;
 import polsl.take.deansoffice.dtos.UserDto;
@@ -28,11 +27,16 @@ public class UserService {
 		this.userRepository = userRepository;
 	}
 
-	public CollectionModel<EntityModel<UserDto>> getAllUsers() {
-		List<EntityModel<UserDto>> users = userRepository.findAll().stream().map(this::toDto)
-				.collect(Collectors.toList());
+	public CollectionModel<EntityModel<UserDto>> getAllUsers(Boolean active) {
+		List<User> list = (active == null) ? userRepository.findAll() : userRepository.findByActive(active);
 
-		return CollectionModel.of(users, linkTo(methodOn(UserController.class).getAllUsers()).withSelfRel());
+		List<EntityModel<UserDto>> users = list.stream().map(this::toDto).collect(Collectors.toList());
+
+		if (users.size() == 0) {
+			throw new ResourceNotFoundException("There are not any users yet.");
+		}
+
+		return CollectionModel.of(users, linkTo(methodOn(UserController.class).getAllUsers(active)).withSelfRel());
 	}
 
 	public EntityModel<UserDto> getUserById(Integer id) {
@@ -41,6 +45,7 @@ public class UserService {
 		return toDto(user);
 	}
 
+	@Transactional
 	public EntityModel<UserDto> createUser(UserDto userDto) {
 		if (userRepository.existsByEmail(userDto.getEmail())) {
 			throw new ResourceConflictException("Email already exists: " + userDto.getEmail());
@@ -50,76 +55,33 @@ public class UserService {
 			throw new ResourceConflictException("Phone already exists: " + userDto.getPhone());
 		}
 
-		User user = toEntity(userDto);
+		User user = new User();
+		toEntity(user, userDto);
 		User savedUser = userRepository.save(user);
 		return toDto(savedUser);
 	}
 
-	public EntityModel<UserDto> updateUser(Integer id, Map<String, Object> updates) {
+	@Transactional
+	public EntityModel<UserDto> updateUser(Integer id, UserDto userDto) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
 
-		if (updates.containsKey("email")) {
-			String newEmail = updates.get("email").toString();
-			if (userRepository.existsByEmailAndUserIdNot(newEmail, id)) {
-				throw new ResourceConflictException("Email already exists: " + newEmail);
-			}
+		if (!user.getEmail().equals(userDto.getEmail())
+				&& userRepository.existsByEmailAndUserIdNot(userDto.getEmail(), userDto.getUserId())) {
+			throw new ResourceConflictException("Email already exists: " + userDto.getEmail());
 		}
 
-		if (updates.containsKey("phone")) {
-			String newPhone = updates.get("phone").toString();
-			if (userRepository.existsByPhoneAndUserIdNot(newPhone, id)) {
-				throw new ResourceConflictException("Phone already exists: " + newPhone);
-			}
+		if (!user.getPhone().equals(userDto.getPhone())
+				&& userRepository.existsByPhoneAndUserIdNot(userDto.getPhone(), userDto.getUserId())) {
+			throw new ResourceConflictException("Phone already exists: " + userDto.getPhone());
 		}
 
-		updates.forEach((field, value) -> {
-			switch (field) {
-			case "name":
-				user.setName((String) value);
-				break;
-			case "surname":
-				user.setSurname((String) value);
-				break;
-			case "email":
-				user.setEmail((String) value);
-				break;
-			case "phone":
-				user.setPhone((String) value);
-				break;
-			case "country":
-				user.setCountry((String) value);
-				break;
-			case "city":
-				user.setCity((String) value);
-				break;
-			case "postalCode":
-				user.setPostalCode((String) value);
-				break;
-			case "street":
-				user.setStreet((String) value);
-				break;
-			case "apartNumber":
-				user.setApartNumber((String) value);
-				break;
-			case "startDate":
-				user.setStartDate(LocalDate.parse(value.toString()));
-				break;
-			case "endDate":
-				user.setEndDate(value == null ? null : LocalDate.parse(value.toString()));
-				break;
-			case "active":
-				user.setActive((Boolean) value);
-				break;
-			default:
-				throw new ResourceConflictException("Unknown field: " + field);
-			}
-		});
-
+		toEntity(user, userDto);
 		User updatedUser = userRepository.save(user);
 		return toDto(updatedUser);
 	}
 
+	@Transactional
 	public void softDeleteUser(Integer id) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
@@ -147,8 +109,8 @@ public class UserService {
 				linkTo(methodOn(UserController.class).getUserById(user.getUserId())).withSelfRel());
 	}
 
-	private User toEntity(UserDto userDto) {
-		User user = new User();
+	private User toEntity(User user, UserDto userDto) {
+		// user.setUserId(userDto.getUserId());
 		user.setName(userDto.getName());
 		user.setSurname(userDto.getSurname());
 		user.setEmail(userDto.getEmail());
@@ -163,4 +125,5 @@ public class UserService {
 		user.setActive(userDto.isActive());
 		return user;
 	}
+
 }

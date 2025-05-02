@@ -1,7 +1,6 @@
 package polsl.take.deansoffice.controllers;
 
 import java.net.URI;
-import java.util.Map;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -34,13 +33,13 @@ public class SubjectController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<EntityModel<SubjectDto>> getSubjectById(@PathVariable Integer id) {
+	public ResponseEntity<EntityModel<SubjectDto>> getSubjectById(@Valid @PathVariable Integer id) {
 		return ResponseEntity.ok(subjectService.getSubjectById(id));
 	}
 
 	@PostMapping("/teachers/{teacherId}/")
 	public ResponseEntity<EntityModel<SubjectDto>> createSubject(@Valid @PathVariable Integer teacherId,
-			@RequestBody SubjectDto subjectDto) {
+			@Valid @RequestBody SubjectDto subjectDto) {
 		EntityModel<SubjectDto> model = subjectService.createSubject(teacherId, subjectDto);
 		URI self = URI.create(model.getRequiredLink("self").getHref());
 		return ResponseEntity.created(self).body(model);
@@ -48,13 +47,13 @@ public class SubjectController {
 
 	@PatchMapping("/{id}/teachers/{teacherId}/")
 	public ResponseEntity<EntityModel<SubjectDto>> updateSubject(@Valid @PathVariable Integer id,
-			@PathVariable Integer teacherId, @RequestBody Map<String, Object> updates) {
-		EntityModel<SubjectDto> model = subjectService.updateSubject(id, teacherId, updates);
+			@Valid @PathVariable Integer teacherId, @Valid @RequestBody SubjectDto subjectDto) {
+		EntityModel<SubjectDto> model = subjectService.updateSubject(id, teacherId, subjectDto);
 		return ResponseEntity.ok(model);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteSubject(@PathVariable Integer id) {
+	public ResponseEntity<String> deleteSubject(@Valid @PathVariable Integer id) {
 		subjectService.deleteSubject(id);
 		return ResponseEntity.ok("Subject with id " + id + " was deleted successfully");
 	}

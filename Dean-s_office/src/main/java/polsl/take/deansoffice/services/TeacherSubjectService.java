@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import polsl.take.deansoffice.controllers.SubjectController;
 import polsl.take.deansoffice.controllers.TeacherController;
@@ -55,6 +56,7 @@ public class TeacherSubjectService {
 		return toDto(teacherSubject);
 	}
 
+	@Transactional
 	public EntityModel<TeacherSubjectDto> createTeacherSubject(Integer teacherId, Integer subjectId) {
 		Teacher teacher = teacherRepository.findById(teacherId)
 				.orElseThrow(() -> new ResourceNotFoundException("Teacher with id " + teacherId + " not found"));
@@ -70,9 +72,10 @@ public class TeacherSubjectService {
 		}
 
 		if (teacherSubjectRepository.existsByTeacherTeacherIdAndSubjectSubjectId(teacherId, subjectId)) {
-	        throw new ResourceConflictException("Teacher with id " + teacherId + " already teaches subject with id " + subjectId);
-	    }
-		
+			throw new ResourceConflictException(
+					"Teacher with id " + teacherId + " already teaches subject with id " + subjectId);
+		}
+
 		TeacherSubject teacherSubject = new TeacherSubject();
 		teacherSubject.setTeacher(teacher);
 		teacherSubject.setSubject(subject);
@@ -81,6 +84,7 @@ public class TeacherSubjectService {
 		return toDto(savedTeacherSubject);
 	}
 
+	@Transactional
 	public EntityModel<TeacherSubjectDto> updateTeacherSubject(Integer id, Integer teacherId, Integer subjectId) {
 		TeacherSubject teacherSubject = teacherSubjectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Teacher's subject with id " + id + " not found"));
@@ -101,9 +105,10 @@ public class TeacherSubjectService {
 		}
 
 		if (teacherSubjectRepository.existsByTeacherTeacherIdAndSubjectSubjectId(teacherId, subjectId)) {
-	        throw new ResourceConflictException("Teacher with id " + teacherId + " already teaches subject with id " + subjectId);
-	    }
-		
+			throw new ResourceConflictException(
+					"Teacher with id " + teacherId + " already teaches subject with id " + subjectId);
+		}
+
 		teacherSubject.setTeacher(teacher);
 		teacherSubject.setSubject(subject);
 
@@ -111,6 +116,7 @@ public class TeacherSubjectService {
 		return toDto(updatedTeacherSubject);
 	}
 
+	@Transactional
 	public void deleteTeacherSubject(Integer id) {
 		TeacherSubject teacherSubject = teacherSubjectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Teacher's subject with id " + id + " not found"));
