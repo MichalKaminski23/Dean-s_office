@@ -86,6 +86,10 @@ public class UserService {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
 
+		if(user.isActive() == false) {
+			throw new ResourceConflictException("User with id " + id + " is already not active account");
+		}
+		
 		user.setActive(false);
 		userRepository.save(user);
 	}

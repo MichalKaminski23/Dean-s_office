@@ -21,7 +21,7 @@ public class StudentDto extends RepresentationModel<StudentDto> {
 
 	@NotBlank(message = "Album can not be empty!")
 	@Size(max = 10, message = "The max size of album is 10!")
-    @Pattern(regexp = "^[A-Za-z]{2}\\d{6}$", message = "Album must start with two letters followed by six digits")
+	@Pattern(regexp = "^[A-Za-z]{2}\\d{6}$", message = "Album must start with two letters followed by six digits")
 	private String album;
 
 	@NotBlank(message = "Field can not be empty!")
@@ -31,13 +31,11 @@ public class StudentDto extends RepresentationModel<StudentDto> {
 
 	@NotBlank(message = "Specialization can not be empty!")
 	@Size(max = 32, message = "The max size of specialization is 32!")
-	@Pattern(regexp = "^[A-Za-z\s]+$", message = "Field must have only letters!")
+	@Pattern(regexp = "^[A-Za-z\s]+$", message = "Specialization must have only letters!")
 	private String specialization;
 
-	@NotBlank(message = "Semester can not be empty!")
-	@Size(max = 2, message = "The max size of semester is 2!")
-    @Min(value = 1, message = "Semester must be at least 1!")
-    @Max(value = 10, message = "Semester must be less than or equal to 10!")
+	@Min(value = 1, message = "Semester must be at least 1!")
+	@Max(value = 10, message = "Semester must be less than or equal to 10!")
 	private int semester;
 
 	@NotBlank(message = "Degree can not be empty!")

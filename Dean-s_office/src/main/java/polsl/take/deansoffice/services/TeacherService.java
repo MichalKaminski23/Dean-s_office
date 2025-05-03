@@ -19,6 +19,7 @@ import polsl.take.deansoffice.exceptions.ResourceConflictException;
 import polsl.take.deansoffice.exceptions.ResourceNotFoundException;
 import polsl.take.deansoffice.models.Teacher;
 import polsl.take.deansoffice.models.User;
+import polsl.take.deansoffice.repositories.StudentRepository;
 import polsl.take.deansoffice.repositories.TeacherRepository;
 import polsl.take.deansoffice.repositories.UserRepository;
 
@@ -27,10 +28,13 @@ public class TeacherService {
 
 	private final TeacherRepository teacherRepository;
 	private final UserRepository userRepository;
+	private final StudentRepository studentRepository;
 
-	public TeacherService(TeacherRepository teacherRepository, UserRepository userRepository) {
+	public TeacherService(TeacherRepository teacherRepository, UserRepository userRepository,
+			StudentRepository studentRepository) {
 		this.teacherRepository = teacherRepository;
 		this.userRepository = userRepository;
+		this.studentRepository = studentRepository;
 	}
 
 	public CollectionModel<EntityModel<TeacherDto>> getAllTeachers() {
@@ -55,6 +59,10 @@ public class TeacherService {
 	public EntityModel<TeacherDto> createTeacher(Integer id, TeacherDto teacherDto) {
 		if (teacherRepository.existsByUserUserId(id)) {
 			throw new ResourceConflictException("Teacher for user with id " + id + " already exists");
+		}
+
+		if (studentRepository.existsById(id)) {
+			throw new ResourceConflictException("This user with id " + id + " is a student");
 		}
 
 		User user = userRepository.findById(id)

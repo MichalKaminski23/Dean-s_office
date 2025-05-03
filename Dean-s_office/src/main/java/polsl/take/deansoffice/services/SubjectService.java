@@ -68,6 +68,14 @@ public class SubjectService {
 			throw new ResourceConflictException("User with id " + teacherId + " is not active");
 		}
 
+		if (subjectRepository.existsByName(subjectDto.getName())) {
+			throw new ResourceConflictException("Subject with name " + subjectDto.getName() + " already exists");
+		}
+
+		if (subjectRepository.existsByTeacherTeacherId(teacherId)) {
+			throw new ResourceConflictException("Only one teacher id: (" + teacherId + ") can coordinate one subject");
+		}
+
 		Subject subject = new Subject();
 		toEntity(subject, subjectDto);
 		subject.setTeacher(teacher);
@@ -85,6 +93,14 @@ public class SubjectService {
 
 		User user = userRepository.findById(teacherId)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id " + teacherId + " not found"));
+
+		if (subjectRepository.existsByName(subjectDto.getName())) {
+			throw new ResourceConflictException("Subject with name " + subjectDto.getName() + " already exists");
+		}
+
+		if (subjectRepository.existsByTeacherTeacherId(teacherId)) {
+			throw new ResourceConflictException("Only one teacher id: (" + teacherId + ") can coordinate one subject");
+		}
 
 		teacher.setUser(user);
 
