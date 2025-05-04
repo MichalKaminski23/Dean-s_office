@@ -98,10 +98,6 @@ public class SubjectService {
 			throw new ResourceConflictException("Subject with name " + subjectDto.getName() + " already exists");
 		}
 
-		if (subjectRepository.existsByTeacherTeacherId(teacherId)) {
-			throw new ResourceConflictException("Only one teacher id: (" + teacherId + ") can coordinate one subject");
-		}
-
 		teacher.setUser(user);
 
 		if (user.isActive() == false) {

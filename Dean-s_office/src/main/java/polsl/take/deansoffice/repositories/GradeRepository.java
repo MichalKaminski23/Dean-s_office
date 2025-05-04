@@ -11,4 +11,6 @@ import polsl.take.deansoffice.models.Grade;
 public interface GradeRepository extends JpaRepository<Grade, Integer> {
 	
 	List<Grade> findByStudentStudentId(Integer studentId);
+	
+	boolean existsByStudentStudentIdAndSubjectSubjectId(Integer studentId, Integer subjectId);
 }

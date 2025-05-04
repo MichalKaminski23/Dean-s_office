@@ -23,7 +23,7 @@ public class GradeDto extends RepresentationModel<GradeDto> {
 	private Integer subjectId;
 
 	@NotNull(message = "Final grade can not be empty!")
-    @Min(value = 1, message = "Final grade must be at least 2 (1 is for subject condition!)")
-    @Max(value = 5, message = "Final grade must be less than or equal to 5!")
+	@Min(value = 1, message = "Final grade must be at least 2 (1 is for subject condition!)")
+	@Max(value = 5, message = "Final grade must be less than or equal to 5!")
 	private int finalGrade;
 }

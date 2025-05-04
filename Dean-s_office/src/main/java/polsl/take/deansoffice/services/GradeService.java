@@ -70,6 +70,11 @@ public class GradeService {
 		User user = userRepository.findById(studentId)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id " + studentId + " not found"));
 
+		if (gradeRepository.existsByStudentStudentIdAndSubjectSubjectId(studentId, subjectId)) {
+			throw new ResourceConflictException(
+					"Student with id " + studentId + " has a grade from subject with id " + subjectId);
+		}
+		
 		student.setUser(user);
 
 		if (user.isActive() == false) {
