@@ -74,7 +74,7 @@ public class GradeService {
 			throw new ResourceConflictException(
 					"Student with id " + studentId + " has a grade from subject with id " + subjectId);
 		}
-		
+
 		student.setUser(user);
 
 		if (user.isActive() == false) {
