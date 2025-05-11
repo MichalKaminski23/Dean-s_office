@@ -37,18 +37,17 @@ public class SubjectController {
 		return ResponseEntity.ok(subjectService.getSubjectById(id));
 	}
 
-	@PostMapping("/teachers/{teacherId}/")
-	public ResponseEntity<EntityModel<SubjectDto>> createSubject(@Valid @PathVariable Integer teacherId,
-			@Valid @RequestBody SubjectDto subjectDto) {
-		EntityModel<SubjectDto> model = subjectService.createSubject(teacherId, subjectDto);
+	@PostMapping
+	public ResponseEntity<EntityModel<SubjectDto>> createSubject(@Valid @RequestBody SubjectDto subjectDto) {
+		EntityModel<SubjectDto> model = subjectService.createSubject(subjectDto);
 		URI self = URI.create(model.getRequiredLink("self").getHref());
 		return ResponseEntity.created(self).body(model);
 	}
 
-	@PatchMapping("/{id}/teachers/{teacherId}/")
+	@PatchMapping("/{id}")
 	public ResponseEntity<EntityModel<SubjectDto>> updateSubject(@Valid @PathVariable Integer id,
-			@Valid @PathVariable Integer teacherId, @Valid @RequestBody SubjectDto subjectDto) {
-		EntityModel<SubjectDto> model = subjectService.updateSubject(id, teacherId, subjectDto);
+			@Valid @RequestBody SubjectDto subjectDto) {
+		EntityModel<SubjectDto> model = subjectService.updateSubject(id, subjectDto);
 		return ResponseEntity.ok(model);
 	}
 

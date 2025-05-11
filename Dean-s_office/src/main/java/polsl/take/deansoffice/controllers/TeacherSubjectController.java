@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,28 +27,30 @@ public class TeacherSubjectController {
 		this.teacherSubjectService = teacherSubjectService;
 	}
 
-	@GetMapping
-	public ResponseEntity<CollectionModel<EntityModel<TeacherSubjectDto>>> getAllTeacherSubjects() {
-		return ResponseEntity.ok(teacherSubjectService.getAllTeacherSubjects());
-	}
+	/*
+	 * @GetMapping public
+	 * ResponseEntity<CollectionModel<EntityModel<TeacherSubjectDto>>>
+	 * getAllTeacherSubjects() { return
+	 * ResponseEntity.ok(teacherSubjectService.getAllTeacherSubjects()); }
+	 */
 
 	@GetMapping("/{id}")
 	public ResponseEntity<EntityModel<TeacherSubjectDto>> getTeacherSubjectById(@Valid @PathVariable Integer id) {
 		return ResponseEntity.ok(teacherSubjectService.getTeacherSubjectById(id));
 	}
 
-	@PostMapping("/teachers/{teacherId}/subjects/{subjectId}")
-	public ResponseEntity<EntityModel<TeacherSubjectDto>> createTeacherSubject(@Valid @PathVariable Integer teacherId,
-			@Valid @PathVariable Integer subjectId) {
-		EntityModel<TeacherSubjectDto> model = teacherSubjectService.createTeacherSubject(teacherId, subjectId);
+	@PostMapping
+	public ResponseEntity<EntityModel<TeacherSubjectDto>> createTeacherSubject(
+			@Valid @RequestBody TeacherSubjectDto teacherSubjectDto) {
+		EntityModel<TeacherSubjectDto> model = teacherSubjectService.createTeacherSubject(teacherSubjectDto);
 		URI self = URI.create(model.getRequiredLink("self").getHref());
 		return ResponseEntity.created(self).body(model);
 	}
 
-	@PatchMapping("/{id}/teachers/{teacherId}/subjects/{subjectId}")
+	@PatchMapping("/{id}")
 	public ResponseEntity<EntityModel<TeacherSubjectDto>> updateTeacherSubject(@Valid @PathVariable Integer id,
-			@Valid @PathVariable Integer teacherId, @Valid @PathVariable Integer subjectId) {
-		return ResponseEntity.ok(teacherSubjectService.updateTeacherSubject(id, teacherId, subjectId));
+			@Valid @RequestBody TeacherSubjectDto teacherSubjectDto) {
+		return ResponseEntity.ok(teacherSubjectService.updateTeacherSubject(id, teacherSubjectDto));
 	}
 
 	@DeleteMapping("/{id}")

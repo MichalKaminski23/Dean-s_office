@@ -1,5 +1,8 @@
 package polsl.take.deansoffice.services;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,9 +26,6 @@ import polsl.take.deansoffice.repositories.TeacherRepository;
 import polsl.take.deansoffice.repositories.TeacherSubjectRepository;
 import polsl.take.deansoffice.repositories.UserRepository;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 @Service
 public class TeacherSubjectService {
 
@@ -42,17 +42,19 @@ public class TeacherSubjectService {
 		this.userRepository = userRepository;
 	}
 
-	public CollectionModel<EntityModel<TeacherSubjectDto>> getAllTeacherSubjects() {
-		List<EntityModel<TeacherSubjectDto>> teacherSubjects = teacherSubjectRepository.findAll().stream()
-				.map(this::toDto).collect(Collectors.toList());
-
-		if (teacherSubjects.size() == 0) {
-			throw new ResourceNotFoundException("There are not any teacher's subject yet.");
-		}
-
-		return CollectionModel.of(teacherSubjects,
-				linkTo(methodOn(TeacherSubjectController.class).getAllTeacherSubjects()).withSelfRel());
-	}
+	/*
+	 * public CollectionModel<EntityModel<TeacherSubjectDto>>
+	 * getAllTeacherSubjects() { List<EntityModel<TeacherSubjectDto>>
+	 * teacherSubjects = teacherSubjectRepository.findAll().stream()
+	 * .map(this::toDto).collect(Collectors.toList());
+	 * 
+	 * if (teacherSubjects.size() == 0) { throw new
+	 * ResourceNotFoundException("There are not any teacher's subject yet."); }
+	 * 
+	 * return CollectionModel.of(teacherSubjects,
+	 * linkTo(methodOn(TeacherSubjectController.class).getAllTeacherSubjects()).
+	 * withSelfRel()); }
+	 */
 
 	public EntityModel<TeacherSubjectDto> getTeacherSubjectById(Integer id) {
 		TeacherSubject teacherSubject = teacherSubjectRepository.findById(id)
@@ -61,23 +63,26 @@ public class TeacherSubjectService {
 	}
 
 	@Transactional
-	public EntityModel<TeacherSubjectDto> createTeacherSubject(Integer teacherId, Integer subjectId) {
-		Teacher teacher = teacherRepository.findById(teacherId)
-				.orElseThrow(() -> new ResourceNotFoundException("Teacher with id " + teacherId + " not found"));
-		Subject subject = subjectRepository.findById(subjectId)
-				.orElseThrow(() -> new ResourceNotFoundException("Subject with id " + subjectId + " not found"));
-		User user = userRepository.findById(teacherId)
-				.orElseThrow(() -> new ResourceNotFoundException("User with id " + teacherId + " not found"));
+	public EntityModel<TeacherSubjectDto> createTeacherSubject(TeacherSubjectDto teacherSubjectDto) {
+		Teacher teacher = teacherRepository.findById(teacherSubjectDto.getTeacherId())
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Teacher with id " + teacherSubjectDto.getTeacherId() + " not found"));
+		Subject subject = subjectRepository.findById(teacherSubjectDto.getSubjectId())
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Subject with id " + teacherSubjectDto.getSubjectId() + " not found"));
+		User user = userRepository.findById(teacherSubjectDto.getTeacherId()).orElseThrow(
+				() -> new ResourceNotFoundException("User with id " + teacherSubjectDto.getTeacherId() + " not found"));
 
 		teacher.setUser(user);
 
 		if (user.isActive() == false) {
-			throw new ResourceConflictException("User with id " + teacherId + " is not active");
+			throw new ResourceConflictException("User with id " + teacherSubjectDto.getTeacherId() + " is not active");
 		}
 
-		if (teacherSubjectRepository.existsByTeacherTeacherIdAndSubjectSubjectId(teacherId, subjectId)) {
-			throw new ResourceConflictException(
-					"Teacher with id " + teacherId + " already teaches subject with id " + subjectId);
+		if (teacherSubjectRepository.existsByTeacherTeacherIdAndSubjectSubjectId(teacherSubjectDto.getTeacherId(),
+				teacherSubjectDto.getSubjectId())) {
+			throw new ResourceConflictException("Teacher with id " + teacherSubjectDto.getTeacherId()
+					+ " already teaches subject with id " + teacherSubjectDto.getSubjectId());
 		}
 
 		TeacherSubject teacherSubject = new TeacherSubject();
@@ -89,28 +94,31 @@ public class TeacherSubjectService {
 	}
 
 	@Transactional
-	public EntityModel<TeacherSubjectDto> updateTeacherSubject(Integer id, Integer teacherId, Integer subjectId) {
+	public EntityModel<TeacherSubjectDto> updateTeacherSubject(Integer id, TeacherSubjectDto teacherSubjectDto) {
 		TeacherSubject teacherSubject = teacherSubjectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Teacher's subject with id " + id + " not found"));
 
-		Teacher teacher = teacherRepository.findById(teacherId)
-				.orElseThrow(() -> new ResourceNotFoundException("Teacher with id " + teacherId + " not found"));
+		Teacher teacher = teacherRepository.findById(teacherSubjectDto.getTeacherId())
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Teacher with id " + teacherSubjectDto.getTeacherId() + " not found"));
 
-		Subject subject = subjectRepository.findById(subjectId)
-				.orElseThrow(() -> new ResourceNotFoundException("Subject with id " + subjectId + " not found"));
+		Subject subject = subjectRepository.findById(teacherSubjectDto.getSubjectId())
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Subject with id " + teacherSubjectDto.getSubjectId() + " not found"));
 
-		User user = userRepository.findById(teacherId)
-				.orElseThrow(() -> new ResourceNotFoundException("User with id " + teacherId + " not found"));
+		User user = userRepository.findById(teacherSubjectDto.getTeacherId()).orElseThrow(
+				() -> new ResourceNotFoundException("User with id " + teacherSubjectDto.getTeacherId() + " not found"));
 
 		teacher.setUser(user);
 
 		if (user.isActive() == false) {
-			throw new ResourceConflictException("User with id " + teacherId + " is not active");
+			throw new ResourceConflictException("User with id " + teacherSubjectDto.getTeacherId() + " is not active");
 		}
 
-		if (teacherSubjectRepository.existsByTeacherTeacherIdAndSubjectSubjectId(teacherId, subjectId)) {
-			throw new ResourceConflictException(
-					"Teacher with id " + teacherId + " already teaches subject with id " + subjectId);
+		if (teacherSubjectRepository.existsByTeacherTeacherIdAndSubjectSubjectId(teacherSubjectDto.getTeacherId(),
+				teacherSubjectDto.getSubjectId())) {
+			throw new ResourceConflictException("Teacher with id " + teacherSubjectDto.getTeacherId()
+					+ " already teaches subject with id " + teacherSubjectDto.getSubjectId());
 		}
 
 		teacherSubject.setTeacher(teacher);
@@ -134,17 +142,21 @@ public class TeacherSubjectService {
 		List<EntityModel<TeacherSubjectDto>> subjects = teacherSubjectRepository.findByTeacherTeacherId(teacherId)
 				.stream().map(this::toDto).collect(Collectors.toList());
 
-		if (subjects.size() == 0) {
-			throw new ResourceNotFoundException("Teacher with id " + teacherId + " doesn't have any subjects");
-		}
+		/*
+		 * if (subjects.size() == 0) { throw new
+		 * ResourceNotFoundException("Teacher with id " + teacherId +
+		 * " doesn't have any subjects"); }
+		 */
 
 		return CollectionModel.of(subjects,
 				linkTo(methodOn(TeacherSubjectController.class).getAllSubjectsForTeacher(teacherId)).withSelfRel());
 	}
 
 	private EntityModel<TeacherSubjectDto> toDto(TeacherSubject teacherSubject) {
-		TeacherSubjectDto teacherSubjectDto = new TeacherSubjectDto(teacherSubject.getTeacherSubjectId(),
-				teacherSubject.getTeacher().getTeacherId(), teacherSubject.getSubject().getSubjectId());
+		TeacherSubjectDto teacherSubjectDto = new TeacherSubjectDto();
+		teacherSubjectDto.setTeacherSubjectId(teacherSubject.getTeacherSubjectId());
+		teacherSubjectDto.setTeacherId(teacherSubject.getTeacher().getTeacherId());
+		teacherSubjectDto.setSubjectId(teacherSubject.getSubject().getSubjectId());
 
 		return EntityModel.of(teacherSubjectDto,
 				linkTo(methodOn(TeacherSubjectController.class)

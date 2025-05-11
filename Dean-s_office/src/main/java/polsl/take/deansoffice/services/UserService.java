@@ -32,9 +32,10 @@ public class UserService {
 
 		List<EntityModel<UserDto>> users = list.stream().map(this::toDto).collect(Collectors.toList());
 
-		if (users.size() == 0) {
-			throw new ResourceNotFoundException("There are not any users yet.");
-		}
+		/*
+		 * if (users.size() == 0) { throw new
+		 * ResourceNotFoundException("There are not any users yet."); }
+		 */
 
 		return CollectionModel.of(users, linkTo(methodOn(UserController.class).getAllUsers(active)).withSelfRel());
 	}
@@ -86,10 +87,10 @@ public class UserService {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
 
-		if(user.isActive() == false) {
+		if (user.isActive() == false) {
 			throw new ResourceConflictException("User with id " + id + " is already not active account");
 		}
-		
+
 		user.setActive(false);
 		userRepository.save(user);
 	}
@@ -114,7 +115,6 @@ public class UserService {
 	}
 
 	private User toEntity(User user, UserDto userDto) {
-		// user.setUserId(userDto.getUserId());
 		user.setName(userDto.getName());
 		user.setSurname(userDto.getSurname());
 		user.setEmail(userDto.getEmail());

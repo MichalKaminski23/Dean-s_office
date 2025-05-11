@@ -41,9 +41,10 @@ public class SubjectService {
 		List<EntityModel<SubjectDto>> subjects = subjectRepository.findAll().stream().map(this::toDto)
 				.collect(Collectors.toList());
 
-		if (subjects.size() == 0) {
-			throw new ResourceNotFoundException("There are not any subjects yet.");
-		}
+		/*
+		 * if (subjects.size() == 0) { throw new
+		 * ResourceNotFoundException("There are not any subjects yet."); }
+		 */
 
 		return CollectionModel.of(subjects, linkTo(methodOn(SubjectController.class).getAllSubjects()).withSelfRel());
 	}
@@ -55,25 +56,26 @@ public class SubjectService {
 	}
 
 	@Transactional
-	public EntityModel<SubjectDto> createSubject(Integer teacherId, SubjectDto subjectDto) {
-		Teacher teacher = teacherRepository.findById(teacherId)
-				.orElseThrow(() -> new ResourceNotFoundException("Teacher with id " + teacherId + " not found"));
+	public EntityModel<SubjectDto> createSubject(SubjectDto subjectDto) {
+		Teacher teacher = teacherRepository.findById(subjectDto.getTeacherId()).orElseThrow(
+				() -> new ResourceNotFoundException("Teacher with id " + subjectDto.getTeacherId() + " not found"));
 
-		User user = userRepository.findById(teacherId)
-				.orElseThrow(() -> new ResourceNotFoundException("User with id " + teacherId + " not found"));
+		User user = userRepository.findById(subjectDto.getTeacherId()).orElseThrow(
+				() -> new ResourceNotFoundException("User with id " + subjectDto.getTeacherId() + " not found"));
 
 		teacher.setUser(user);
 
 		if (user.isActive() == false) {
-			throw new ResourceConflictException("User with id " + teacherId + " is not active");
+			throw new ResourceConflictException("User with id " + subjectDto.getTeacherId() + " is not active");
 		}
 
 		if (subjectRepository.existsByName(subjectDto.getName())) {
 			throw new ResourceConflictException("Subject with name " + subjectDto.getName() + " already exists");
 		}
 
-		if (subjectRepository.existsByTeacherTeacherId(teacherId)) {
-			throw new ResourceConflictException("Only one teacher id: (" + teacherId + ") can coordinate one subject");
+		if (subjectRepository.existsByTeacherTeacherId(subjectDto.getTeacherId())) {
+			throw new ResourceConflictException(
+					"Only one teacher id: (" + subjectDto.getTeacherId() + ") can coordinate one subject");
 		}
 
 		Subject subject = new Subject();
@@ -84,15 +86,15 @@ public class SubjectService {
 	}
 
 	@Transactional
-	public EntityModel<SubjectDto> updateSubject(Integer id, Integer teacherId, SubjectDto subjectDto) {
+	public EntityModel<SubjectDto> updateSubject(Integer id, SubjectDto subjectDto) {
 		Subject subject = subjectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject with id " + id + " not found"));
 
-		Teacher teacher = teacherRepository.findById(teacherId)
-				.orElseThrow(() -> new ResourceNotFoundException("Teacher with id " + teacherId + " not found"));
+		Teacher teacher = teacherRepository.findById(subjectDto.getTeacherId()).orElseThrow(
+				() -> new ResourceNotFoundException("Teacher with id " + subjectDto.getTeacherId() + " not found"));
 
-		User user = userRepository.findById(teacherId)
-				.orElseThrow(() -> new ResourceNotFoundException("User with id " + teacherId + " not found"));
+		User user = userRepository.findById(subjectDto.getTeacherId()).orElseThrow(
+				() -> new ResourceNotFoundException("User with id " + subjectDto.getTeacherId() + " not found"));
 
 		if (subjectRepository.existsByName(subjectDto.getName())) {
 			throw new ResourceConflictException("Subject with name " + subjectDto.getName() + " already exists");
@@ -101,7 +103,7 @@ public class SubjectService {
 		teacher.setUser(user);
 
 		if (user.isActive() == false) {
-			throw new ResourceConflictException("User with id " + teacherId + " is not active");
+			throw new ResourceConflictException("User with id " + subjectDto.getTeacherId() + " is not active");
 		}
 
 		subject.setTeacher(teacher);

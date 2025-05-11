@@ -46,9 +46,10 @@ public class GradeService {
 		List<EntityModel<GradeDto>> grades = gradeRepository.findAll().stream().map(this::toDto)
 				.collect(Collectors.toList());
 
-		if (grades.size() == 0) {
-			throw new ResourceNotFoundException("There are not any grades yet.");
-		}
+		/*
+		 * if (grades.size() == 0) { throw new
+		 * ResourceNotFoundException("There are not any grades yet."); }
+		 */
 
 		return CollectionModel.of(grades, linkTo(methodOn(GradeController.class).getAllGrades()).withSelfRel());
 	}
@@ -60,25 +61,26 @@ public class GradeService {
 	}
 
 	@Transactional
-	public EntityModel<GradeDto> createGrade(Integer studentId, Integer subjectId, GradeDto gradeDto) {
-		Student student = studentRepository.findById(studentId)
-				.orElseThrow(() -> new ResourceNotFoundException("Student with id " + studentId + " not found"));
+	public EntityModel<GradeDto> createGrade(GradeDto gradeDto) {
+		Student student = studentRepository.findById(gradeDto.getStudentId()).orElseThrow(
+				() -> new ResourceNotFoundException("Student with id " + gradeDto.getStudentId() + " not found"));
 
-		Subject subject = subjectRepository.findById(subjectId)
-				.orElseThrow(() -> new ResourceNotFoundException("Subject with id " + subjectId + " not found"));
+		Subject subject = subjectRepository.findById(gradeDto.getSubjectId()).orElseThrow(
+				() -> new ResourceNotFoundException("Subject with id " + gradeDto.getSubjectId() + " not found"));
 
-		User user = userRepository.findById(studentId)
-				.orElseThrow(() -> new ResourceNotFoundException("User with id " + studentId + " not found"));
+		User user = userRepository.findById(gradeDto.getStudentId()).orElseThrow(
+				() -> new ResourceNotFoundException("User with id " + gradeDto.getStudentId() + " not found"));
 
-		if (gradeRepository.existsByStudentStudentIdAndSubjectSubjectId(studentId, subjectId)) {
-			throw new ResourceConflictException(
-					"Student with id " + studentId + " has a grade from subject with id " + subjectId);
+		if (gradeRepository.existsByStudentStudentIdAndSubjectSubjectId(gradeDto.getStudentId(),
+				gradeDto.getSubjectId())) {
+			throw new ResourceConflictException("Student with id " + gradeDto.getStudentId()
+					+ " has a grade from subject with id " + gradeDto.getSubjectId());
 		}
 
 		student.setUser(user);
 
 		if (user.isActive() == false) {
-			throw new ResourceConflictException("User with id " + studentId + " is not active");
+			throw new ResourceConflictException("User with id " + gradeDto.getStudentId() + " is not active");
 		}
 
 		Grade grade = new Grade();
@@ -90,18 +92,18 @@ public class GradeService {
 	}
 
 	@Transactional
-	public EntityModel<GradeDto> updateGrade(Integer id, Integer studentId, Integer subjectId, GradeDto gradeDto) {
+	public EntityModel<GradeDto> updateGrade(Integer id, GradeDto gradeDto) {
 		Grade grade = gradeRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Grade with id " + id + " not found"));
 
-		Student student = studentRepository.findById(studentId)
-				.orElseThrow(() -> new ResourceNotFoundException("Student with id " + studentId + " not found"));
+		Student student = studentRepository.findById(gradeDto.getStudentId()).orElseThrow(
+				() -> new ResourceNotFoundException("Student with id " + gradeDto.getStudentId() + " not found"));
 
-		Subject subject = subjectRepository.findById(subjectId)
-				.orElseThrow(() -> new ResourceNotFoundException("Subject with id " + subjectId + " not found"));
+		Subject subject = subjectRepository.findById(gradeDto.getSubjectId()).orElseThrow(
+				() -> new ResourceNotFoundException("Subject with id " + gradeDto.getSubjectId() + " not found"));
 
-		User user = userRepository.findById(studentId)
-				.orElseThrow(() -> new ResourceNotFoundException("User with id " + studentId + " not found"));
+		User user = userRepository.findById(gradeDto.getStudentId()).orElseThrow(
+				() -> new ResourceNotFoundException("User with id " + gradeDto.getStudentId() + " not found"));
 
 		student.setUser(user);
 
@@ -130,9 +132,11 @@ public class GradeService {
 		List<EntityModel<GradeDto>> grades = gradeRepository.findByStudentStudentId(studentId).stream().map(this::toDto)
 				.collect(Collectors.toList());
 
-		if (grades.size() == 0) {
-			throw new ResourceNotFoundException("Student with id " + studentId + " doesn't have any grades");
-		}
+		/*
+		 * if (grades.size() == 0) { throw new
+		 * ResourceNotFoundException("Student with id " + studentId +
+		 * " doesn't have any grades"); }
+		 */
 
 		return CollectionModel.of(grades,
 				linkTo(methodOn(GradeController.class).getAllGradesForStudent(studentId)).withSelfRel());

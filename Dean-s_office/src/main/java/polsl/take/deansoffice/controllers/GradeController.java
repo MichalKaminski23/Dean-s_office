@@ -37,19 +37,17 @@ public class GradeController {
 		return ResponseEntity.ok(gradeService.getGradeById(id));
 	}
 
-	@PostMapping("/students/{studentId}/subjects/{subjectId}")
-	public ResponseEntity<EntityModel<GradeDto>> createGrade(@Valid @PathVariable Integer studentId,
-			@Valid @PathVariable Integer subjectId, @Valid @RequestBody GradeDto gradeDto) {
-		EntityModel<GradeDto> model = gradeService.createGrade(studentId, subjectId, gradeDto);
+	@PostMapping
+	public ResponseEntity<EntityModel<GradeDto>> createGrade(@Valid @RequestBody GradeDto gradeDto) {
+		EntityModel<GradeDto> model = gradeService.createGrade(gradeDto);
 		URI self = URI.create(model.getRequiredLink("self").getHref());
 		return ResponseEntity.created(self).body(model);
 	}
 
-	@PatchMapping("/{id}/students/{studentId}/subjects/{subjectId}")
+	@PatchMapping("/{id}")
 	public ResponseEntity<EntityModel<GradeDto>> updateGrade(@Valid @PathVariable Integer id,
-			@Valid @PathVariable Integer studentId, @Valid @PathVariable Integer subjectId,
 			@Valid @RequestBody GradeDto gradeDto) {
-		EntityModel<GradeDto> model = gradeService.updateGrade(id, studentId, subjectId, gradeDto);
+		EntityModel<GradeDto> model = gradeService.updateGrade(id, gradeDto);
 		return ResponseEntity.ok(model);
 	}
 

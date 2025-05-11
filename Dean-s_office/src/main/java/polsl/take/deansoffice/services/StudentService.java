@@ -40,9 +40,10 @@ public class StudentService {
 		List<EntityModel<StudentDto>> students = studentRepository.findAll().stream().map(this::toDto)
 				.collect(Collectors.toList());
 
-		if (students.size() == 0) {
-			throw new ResourceNotFoundException("There are not any students yet.");
-		}
+		/*
+		 * if (students.size() == 0) { throw new
+		 * ResourceNotFoundException("There are not any students yet."); }
+		 */
 
 		return CollectionModel.of(students, linkTo(methodOn(StudentController.class).getAllStudents()).withSelfRel());
 	}
