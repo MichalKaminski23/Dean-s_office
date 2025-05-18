@@ -46,11 +46,6 @@ public class GradeService {
 		List<EntityModel<GradeDto>> grades = gradeRepository.findAll().stream().map(this::toDto)
 				.collect(Collectors.toList());
 
-		/*
-		 * if (grades.size() == 0) { throw new
-		 * ResourceNotFoundException("There are not any grades yet."); }
-		 */
-
 		return CollectionModel.of(grades, linkTo(methodOn(GradeController.class).getAllGrades()).withSelfRel());
 	}
 
@@ -131,12 +126,6 @@ public class GradeService {
 
 		List<EntityModel<GradeDto>> grades = gradeRepository.findByStudentStudentId(studentId).stream().map(this::toDto)
 				.collect(Collectors.toList());
-
-		/*
-		 * if (grades.size() == 0) { throw new
-		 * ResourceNotFoundException("Student with id " + studentId +
-		 * " doesn't have any grades"); }
-		 */
 
 		return CollectionModel.of(grades,
 				linkTo(methodOn(GradeController.class).getAllGradesForStudent(studentId)).withSelfRel());

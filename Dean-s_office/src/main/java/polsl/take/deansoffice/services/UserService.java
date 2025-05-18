@@ -32,11 +32,6 @@ public class UserService {
 
 		List<EntityModel<UserDto>> users = list.stream().map(this::toDto).collect(Collectors.toList());
 
-		/*
-		 * if (users.size() == 0) { throw new
-		 * ResourceNotFoundException("There are not any users yet."); }
-		 */
-
 		return CollectionModel.of(users, linkTo(methodOn(UserController.class).getAllUsers(active)).withSelfRel());
 	}
 

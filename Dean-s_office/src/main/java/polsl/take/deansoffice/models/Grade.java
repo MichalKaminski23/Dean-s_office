@@ -31,5 +31,5 @@ public class Grade {
 	private Subject subject;
 
 	@Column(nullable = false, length = 2)
-	private int finalGrade;
+	private float finalGrade;
 }

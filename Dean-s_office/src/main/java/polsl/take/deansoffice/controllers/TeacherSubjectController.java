@@ -27,13 +27,6 @@ public class TeacherSubjectController {
 		this.teacherSubjectService = teacherSubjectService;
 	}
 
-	/*
-	 * @GetMapping public
-	 * ResponseEntity<CollectionModel<EntityModel<TeacherSubjectDto>>>
-	 * getAllTeacherSubjects() { return
-	 * ResponseEntity.ok(teacherSubjectService.getAllTeacherSubjects()); }
-	 */
-
 	@GetMapping("/{id}")
 	public ResponseEntity<EntityModel<TeacherSubjectDto>> getTeacherSubjectById(@Valid @PathVariable Integer id) {
 		return ResponseEntity.ok(teacherSubjectService.getTeacherSubjectById(id));

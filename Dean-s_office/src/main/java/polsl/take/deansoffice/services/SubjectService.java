@@ -41,11 +41,6 @@ public class SubjectService {
 		List<EntityModel<SubjectDto>> subjects = subjectRepository.findAll().stream().map(this::toDto)
 				.collect(Collectors.toList());
 
-		/*
-		 * if (subjects.size() == 0) { throw new
-		 * ResourceNotFoundException("There are not any subjects yet."); }
-		 */
-
 		return CollectionModel.of(subjects, linkTo(methodOn(SubjectController.class).getAllSubjects()).withSelfRel());
 	}
 

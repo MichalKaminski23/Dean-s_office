@@ -41,11 +41,6 @@ public class TeacherService {
 		List<EntityModel<TeacherDto>> teachers = teacherRepository.findAll().stream().map(this::toDto)
 				.collect(Collectors.toList());
 
-		/*
-		 * if (teachers.size() == 0) { throw new
-		 * ResourceNotFoundException("There are not any teachers yet."); }
-		 */
-
 		return CollectionModel.of(teachers, linkTo(methodOn(TeacherController.class).getAllTeachers()).withSelfRel());
 
 	}

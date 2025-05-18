@@ -42,20 +42,6 @@ public class TeacherSubjectService {
 		this.userRepository = userRepository;
 	}
 
-	/*
-	 * public CollectionModel<EntityModel<TeacherSubjectDto>>
-	 * getAllTeacherSubjects() { List<EntityModel<TeacherSubjectDto>>
-	 * teacherSubjects = teacherSubjectRepository.findAll().stream()
-	 * .map(this::toDto).collect(Collectors.toList());
-	 * 
-	 * if (teacherSubjects.size() == 0) { throw new
-	 * ResourceNotFoundException("There are not any teacher's subject yet."); }
-	 * 
-	 * return CollectionModel.of(teacherSubjects,
-	 * linkTo(methodOn(TeacherSubjectController.class).getAllTeacherSubjects()).
-	 * withSelfRel()); }
-	 */
-
 	public EntityModel<TeacherSubjectDto> getTeacherSubjectById(Integer id) {
 		TeacherSubject teacherSubject = teacherSubjectRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Teacher's subject with id " + id + " not found"));
@@ -141,12 +127,6 @@ public class TeacherSubjectService {
 
 		List<EntityModel<TeacherSubjectDto>> subjects = teacherSubjectRepository.findByTeacherTeacherId(teacherId)
 				.stream().map(this::toDto).collect(Collectors.toList());
-
-		/*
-		 * if (subjects.size() == 0) { throw new
-		 * ResourceNotFoundException("Teacher with id " + teacherId +
-		 * " doesn't have any subjects"); }
-		 */
 
 		return CollectionModel.of(subjects,
 				linkTo(methodOn(TeacherSubjectController.class).getAllSubjectsForTeacher(teacherId)).withSelfRel());
